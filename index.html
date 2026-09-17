@@ -1627,7 +1627,7 @@ const MONTHS_FULL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","A
 //    > Implementar > Nueva implementación > tipo "Aplicación web" > Ejecutar como "Yo"
 //    > Quién tiene acceso "Cualquier usuario".
 // 3) Pega aquí la URL que termina en /exec, y la MISMA clave que pusiste en API_TOKEN del Code.gs.
-const SHEETS_API_URL = "https://script.google.com/macros/s/AKfycbwJ3ZoeAKpZKCoIFTt0lOBsqDyk8I9YUvCYggNcrhEpZT8JUVEqELW3POCnclSZs1iJ6g/exec";
+const SHEETS_API_URL = "https://script.google.com/a/macros/uniandes.edu.co/s/AKfycbwJ3ZoeAKpZKCoIFTt0lOBsqDyk8I9YUvCYggNcrhEpZT8JUVEqELW3POCnclSZs1iJ6g/exec";
 const API_TOKEN = "ORI-pendientes-ORI-12345";
 const SYNC_POLL_MS = 20000; // frecuencia de refresco automático (20s)
 let syncTimer = null;
@@ -1662,7 +1662,6 @@ function initials(name){ return name.split(" ").map(w=>w[0]).slice(0,2).join("")
 function processOf(id){ return PROCESSES.find(p=>p.id===id); }
 function subthemeOf(id){ return SUBTHEMES.find(s=>s.id===id); }
 function personOf(id){ return TEAM[id] || {name:id,color:"#999",role:""}; }
-function clamp(n,a,b){ return Math.max(a,Math.min(b,n)); }
 function uniq(arr){ return [...new Set(arr)]; }
 
 function avatarHtml(personId, size){
@@ -1992,7 +1991,6 @@ function wireFilters(){
 /* ================================================================
    6A. MODAL: TAREAS ACTUALES DE UNA PERSONA (clic en "Carga por responsable")
    ================================================================ */
-const TASK_ORDER = { "riesgo":0, "vencida":0, "ejecucion":1, "seguimiento":1, "preparacion":2, "no-iniciada":3, "completada":4 };
 
 function showPersonModal(){
   byId("personOverlay").classList.add("show");
@@ -2217,6 +2215,7 @@ function computeKPIs(list){
 }
 
 function renderDashboard(){
+  const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
   const isAnnual = state.dashboardScope==="annual";
   const list = isAnnual ? filteredActivities() : rollingWindowActivities();
   const k = computeKPIs(list);
@@ -2320,6 +2319,7 @@ function renderDashboard(){
       </div>
     </div>
   `;
+  byId("viewWrap").scrollTop = _scrollPos;
 
   byId("viewWrap").querySelectorAll("[data-open]").forEach(el=>{
     el.addEventListener("click", ()=>{ const [sId,aId]=el.dataset.open.split("|"); openDetail(sId,aId); });
@@ -2338,12 +2338,6 @@ function renderDashboard(){
 /* ================================================================
    7. RENDER: CRONOGRAMA / GANTT
    ================================================================ */
-function monthSpan(startStr,endStr){
-  const s = parseDate(startStr), e = parseDate(endStr);
-  const startCol = s.getMonth(); const endCol = e.getMonth();
-  return { startCol, span: Math.max(1, endCol-startCol+1) };
-}
-
 function computeSemesterWeeks(){
   const today = TODAY;
   let startMonth = today.getMonth()-1, startYear = today.getFullYear();
@@ -2412,6 +2406,7 @@ function renderInlineAddArea(subthemeId){
 }
 
 function renderTimeline(){
+  const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
   const list = filteredActivities();
   const { months, weeks } = computeSemesterWeeks();
   const windowStart = weeks[0].start, windowEnd = weeks[weeks.length-1].end;
@@ -2425,6 +2420,7 @@ function renderTimeline(){
     byId("viewWrap").innerHTML = `
       <div class="section-title-page"><h2>Cronograma</h2><span>Sin datos para los filtros seleccionados</span></div>
       <div class="empty-state"><div class="t">Ningún gran tema tiene tareas con estos filtros</div></div>`;
+    byId("viewWrap").scrollTop = _scrollPos;
     return;
   }
   if(state.tlProcessIdx>=procsWithData.length) state.tlProcessIdx = 0;
@@ -2562,6 +2558,7 @@ function renderTimeline(){
       </div>
     </div>
   `;
+  byId("viewWrap").scrollTop = _scrollPos;
   wireTimelineGrid();
 
   byId("tlPrev").addEventListener("click", ()=>{
@@ -2651,6 +2648,7 @@ function wireTimelineGrid(){
    7A. RENDER: DETALLE DE UN GRAN TEMA (subtemas + mini-cronograma propio)
    ================================================================ */
 function renderProcessDetail(){
+  const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
   const p = processOf(state.selectedProcess);
   if(!p){ byId("viewWrap").innerHTML = '<div class="empty-state"><div class="t">Selecciona un gran tema en el menú lateral</div></div>'; return; }
 
@@ -2730,6 +2728,7 @@ function renderProcessDetail(){
     <div class="section-title-page"><h2 style="font-size:15px;">Cronograma de ${p.name}</h2><span>Solo las tareas de este gran tema, marcando completadas, vencidas y en riesgo</span></div>
     ${renderMiniTimeline(allActs)}
   `;
+  byId("viewWrap").scrollTop = _scrollPos;
 
   wireProcessDetailEvents();
 }
@@ -3155,6 +3154,7 @@ function wireNotifBadges(container, rerenderFn){
 }
 
 function renderPending(){
+  const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
   state.dismissedPending = state.dismissedPending || new Set();
   const list = rollingWindowActivities().filter(a=> !state.dismissedPending.has(a.subthemeId+"|"+a.id));
 
@@ -3238,6 +3238,7 @@ function renderPending(){
       ${groupsHtml || '<div class="empty-state"><div class="t">No hay tareas en esta ventana de 30 días</div><div class="s">Prueba quitando filtros o revisa el Cronograma para ver fechas más lejanas.</div></div>'}
     </div>
   `;
+  byId("viewWrap").scrollTop = _scrollPos;
   byId("viewWrap").querySelectorAll("[data-open-day-note]").forEach(el=>{
     el.addEventListener("click", ()=> openDayView(el.dataset.openDayNote));
   });
