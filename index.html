@@ -676,7 +676,23 @@ input,select,textarea{font-family:inherit;}
 }
 .dm-daycell{border-bottom:1px solid var(--line-soft);border-left:1px solid var(--line-soft);min-height:40px;position:relative;}
 .dm-daycell.weekend{background:#FAFAFC;}
-.dm-daycell.today{background:var(--teal-tint);}
+.dm-daycell.today{background:var(--teal-tint);border-bottom-color:transparent;}
+
+/* Jerarquía visual del cronograma: subtema expandido vs. sus tareas hijas */
+.tl-subtema-row.expanded{background:#E8EDF7;}
+.tl-subtema-row.expanded .dm-row-label{background:#E8EDF7;}
+.tl-subtema-row.expanded .dm-row-label::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tl-accent,#8892A6);
+}
+.tl-child-row{background:#F6F8FD;}
+.tl-child-row .dm-row-label{background:#F6F8FD;padding-left:32px;}
+.tl-child-row .dm-row-label::before{
+  content:"";position:absolute;left:18px;top:8px;bottom:8px;width:3px;border-radius:2px;
+  background:var(--tl-accent,#C2CBDC);opacity:.5;
+}
+.tl-child-row:hover{background:#EFF3FB;}
+.tl-child-row:hover .dm-row-label{background:#EFF3FB;}
+.tl-child-last{border-bottom:2px solid var(--line-soft);}
 .dm-monthhead, .dm-dayhead{position:sticky;top:0;background:#FAFBFD;z-index:3;border-bottom:1px solid var(--line);}
 .dm-monthhead{top:0;z-index:5;font-size:10.5px;font-weight:700;color:var(--text-muted);text-align:center;padding:5px 0;border-left:1px solid var(--line);text-transform:uppercase;}
 .dm-dayhead{top:24px;z-index:3;font-family:var(--font-mono);font-size:10px;color:var(--text-faint);text-align:center;padding:4px 0;border-left:1px solid var(--line-soft);}
@@ -2465,7 +2481,7 @@ function renderTimeline(){
       </div>`;
     }
     const unread = state.viewingAs ? countUnreadNotes(a.notes, state.viewingAs) : 0;
-    return `<div style="display:flex;">
+    return `<div class="tl-child-row" style="display:flex;--tl-accent:${p.color};">
       <div class="dm-row-label" style="width:${LABEL_W}px;flex-shrink:0;">
         <div class="dm-row-name" title="${a.name}">${a.name}${urgencyMarkHtml(a)}${msgIconHtml(unread)}${a.recurrence && a.recurrence!=="ninguna" ? ` <span class="dm-recur-tag">↻ ${a.recurrence}</span>`:''}</div>
         <div class="dm-row-dates">
@@ -2485,7 +2501,12 @@ function renderTimeline(){
   const rows = subs.map(({sub,minD,maxD,avgProgress,respUniq,count,totalTasks,totalOutsideWindow})=>{
     const expanded = state.tlExpandedSubtheme===sub.id;
     const subUnread = subthemeUnreadCount(sub);
-    const expandedRowsHtml = expanded ? sub.activities.map(a=>taskRowHtml(a, sub.id)).join("") : "";
+    const expandedRowsHtml = expanded ? sub.activities.map((a,i)=>{
+      const html = taskRowHtml(a, sub.id);
+      return (i===sub.activities.length-1 && !state.dayAddFormOpen)
+        ? html.replace('class="tl-child-row"', 'class="tl-child-row tl-child-last"')
+        : html;
+    }).join("") : "";
     const addAreaHtml = expanded ? renderInlineAddArea(sub.id) : "";
 
     let barOrNote;
@@ -2500,7 +2521,7 @@ function renderTimeline(){
       </div>`;
     }
 
-    return `<div style="display:flex;background:${expanded?'#F7F8FC':'transparent'};" class="tl-subtema-row" data-toggle-inline="${sub.id}">
+    return `<div style="display:flex;--tl-accent:${p.color};" class="tl-subtema-row ${expanded?'expanded':''}" data-toggle-inline="${sub.id}">
       <div class="dm-row-label tl-subtema-label" style="width:${LABEL_W}px;flex-shrink:0;">
         <div class="dm-row-name">
           <svg class="tl-expand-caret ${expanded?'open':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M9 6l6 6-6 6"/></svg>
@@ -3159,6 +3180,10 @@ function renderPending(){
   const list = rollingWindowActivities().filter(a=> !state.dismissedPending.has(a.subthemeId+"|"+a.id));
 
   const sortFn = (a,b)=>{
+    // Las completadas siempre bajan al final de su sección
+    const ca = a.status==="completada" ? 1 : 0;
+    const cb = b.status==="completada" ? 1 : 0;
+    if(ca!==cb) return ca-cb;
     const d = parseDate(a.end) - parseDate(b.end);
     if(d!==0) return d;
     const p = PRIORITY_ORDER[a.priority]-PRIORITY_ORDER[b.priority];
@@ -3351,7 +3376,18 @@ function openDetail(subthemeId, activityId, opts){
           <div class="dp-field"><div class="k">Duración</div><div class="v">${daysBetween(parseDate(a.start),parseDate(a.end))} días</div></div>
           <div class="dp-field"><div class="k">Estado temporal</div><div class="v">${timeStatusText(a)}</div></div>
         </div>
-        <div class="dp-hint">Las fechas y el % de cumplimiento se ajustan desde el cronograma detallado del subtema.</div>
+        <div class="dp-hint">Las fechas se ajustan desde el cronograma detallado del subtema.</div>
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">Avance</div>
+        <div class="progress-big">
+          <div class="progress-track">
+            <div class="progress-fill" id="dpProgressFill" style="width:${a.progress}%;background:${progressColor(a.progress)};"></div>
+          </div>
+          <div class="progress-pct" id="dpProgressPct">${a.progress}%</div>
+        </div>
+        <input type="range" min="0" max="100" step="5" value="${a.progress}" class="dp-progress-slider" id="dpProgressSlider">
       </div>
 
       <div class="dp-section">
@@ -3393,10 +3429,33 @@ function openDetail(subthemeId, activityId, opts){
     postToSheet({ action:"updateActivity", id:a.id, fields:{ name:a.name } });
   });
 
+  // Barra de avance: 'input' actualiza la vista en vivo, 'change' persiste al soltar
+  const dpSlider = byId("dpProgressSlider");
+  const dpFill = byId("dpProgressFill");
+  const dpPct = byId("dpProgressPct");
+  function paintProgress(v){
+    dpFill.style.width = v+"%";
+    dpFill.style.background = progressColor(v);
+    dpPct.textContent = v+"%";
+  }
+  dpSlider.addEventListener("input", e=> paintProgress(parseInt(e.target.value,10)) );
+  dpSlider.addEventListener("change", e=>{
+    const v = Math.max(0, Math.min(100, parseInt(e.target.value,10)||0));
+    a.progress = v;
+    if(v===100 && a.status!=="completada") a.status = "completada";
+    else if(v<100 && a.status==="completada") a.status = "ejecucion";
+    const statusSel = byId("editStatus");
+    if(statusSel){ statusSel.value = a.status; statusSel.className = "tag-select status-"+a.status; }
+    paintProgress(v);
+    renderAll();
+    postToSheet({ action:"updateActivity", id:a.id, fields:{ progress:a.progress, status:a.status } });
+  });
+
   byId("editStatus").addEventListener("change", e=>{
     a.status = e.target.value;
     e.target.className = "tag-select status-"+a.status;
     if(a.status==="completada" && a.progress<100) a.progress = 100;
+    if(dpSlider){ dpSlider.value = a.progress; paintProgress(a.progress); }
     renderAll();
     postToSheet({ action:"updateActivity", id:a.id, fields:{ status:a.status, progress:a.progress } });
   });
