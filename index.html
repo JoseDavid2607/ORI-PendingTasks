@@ -3446,7 +3446,7 @@ function openDetail(subthemeId, activityId, opts){
     openDetail(subthemeId, activityId, opts); // redibuja con el nuevo comentario y contador actualizado
     postToSheet({ action:"addNote", note:{
       id:"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
-      activityId:a.id, author:note.author, date:note.date, type:note.type, text:note.text
+      activityId:a.id, author:note.author, date:note.date, time:note.time, type:note.type, text:note.text
     }});
   });
 }
