@@ -1497,11 +1497,12 @@ input,select,textarea{font-family:inherit;}
 .dm-date-input:hover{background:var(--blue-tint);}
 
 /* --- Pendientes: lo completado se resalta en verde --- */
-.pending-row.done{opacity:1;background:var(--green-tint);box-shadow:inset 3px 0 0 var(--green);}
-.pending-row.done:hover{background:#D9F0E3;}
-.pending-row.done .pending-name{text-decoration:none;color:#1B6B41;}
-.pending-row.done .pending-deadline{color:#1E7B47;}
-.pending-row.done .pending-days{color:#1E7B47;}
+.pending-row.done{opacity:1;background:rgba(47,164,99,.05);box-shadow:inset 3px 0 0 rgba(47,164,99,.3);}
+.pending-row.done:hover{background:rgba(47,164,99,.09);}
+.pending-row.done .pending-name{text-decoration:line-through;text-decoration-color:var(--text-faint);color:var(--text-muted);}
+.pending-row.done .pending-meta{color:var(--text-faint);}
+.pending-row.done .pending-deadline{color:var(--text-faint);}
+.pending-row.done .pending-days{color:var(--text-faint);}
 
 /* --- Las alertas !! / !!! nunca se parten en varias líneas --- */
 .urgency-mark{white-space:nowrap;flex-shrink:0;}
@@ -1526,6 +1527,75 @@ input,select,textarea{font-family:inherit;}
 .tl-label .tn{align-items:flex-start;}
 .tl-label .tn .urgency-mark{margin-left:0;margin-right:4px;flex-shrink:0;line-height:1.3;}
 .tl-label .tn-text{min-width:0;}
+
+/* ================================================================
+   CSS · 9. AJUSTES DE ESTA REVISIÓN (2)
+   Edición de grandes temas y subtemas, y tareas históricas.
+   ================================================================ */
+.proc-title-row{align-items:center;gap:10px 14px;}
+.proc-title-actions{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.icon-btn-sm{
+  width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  color:var(--text-muted);background:#fff;border:1px solid var(--line);transition:background .15s,color .15s,border-color .15s;
+}
+.icon-btn-sm svg{width:14px;height:14px;}
+.icon-btn-sm:hover{background:var(--blue-tint);color:var(--blue);border-color:#C8D6EE;}
+.icon-btn-sm.danger:hover{background:var(--coral-tint);color:#C9433C;border-color:#F0C6C3;}
+.hact-edit-actions{display:flex;align-items:center;gap:5px;flex-shrink:0;margin-left:4px;}
+.hact-head:hover .hact-edit-actions{opacity:1;}
+.hact-edit-actions{opacity:.55;transition:opacity .15s;}
+.inline-name-input{
+  font:inherit;font-weight:700;color:var(--text);background:var(--blue-soft);border:1.5px solid var(--blue);
+  border-radius:8px;padding:3px 8px;min-width:0;flex:1 1 auto;max-width:420px;
+}
+.inline-name-input-lg{font-family:var(--font-display);font-size:19px;font-weight:800;color:var(--ink);padding:5px 10px;max-width:520px;}
+.hact-head .n{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
+.hact-name-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.inline-add-sub-form{
+  display:flex;gap:8px;align-items:center;margin-top:10px;padding:12px;background:var(--surface-2);
+  border:1px dashed var(--line-strong);border-radius:12px;flex-wrap:wrap;
+}
+.inline-add-sub-form input{
+  flex:1;min-width:200px;height:38px;padding:0 12px;border-radius:9px;border:1px solid var(--line);font-size:13px;
+}
+.inline-add-sub-form input:focus{border-color:var(--blue);box-shadow:var(--ring);outline:none;}
+
+.add-process-item{
+  display:flex;align-items:center;gap:9px;color:var(--blue);font-size:12.5px;font-weight:700;
+  padding:9px 12px;border-radius:var(--r-md);margin-top:2px;
+}
+.add-process-item svg{width:14px;height:14px;}
+.add-process-item:hover{background:var(--blue-tint);}
+.inline-add-proc-form{padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px;}
+.inline-add-proc-form input{
+  height:36px;padding:0 10px;border-radius:8px;border:1px solid var(--line);font-size:12.5px;background:#fff;
+}
+.inline-add-proc-form input:focus{border-color:var(--blue);box-shadow:var(--ring);outline:none;}
+.inline-add-proc-actions{display:flex;gap:8px;}
+.inline-add-proc-actions .btn-primary{flex:1;padding:7px 10px;font-size:12px;}
+.inline-add-proc-actions .clear-btn{padding:7px 10px;font-size:12px;}
+
+/* --- Botón de Tareas históricas, junto a "Volver a la portada" --- */
+.sidebar-footer-row{display:flex;align-items:center;gap:8px;}
+.sidebar-footer-row .back-cover-btn{flex:1;}
+.hist-btn{
+  width:44px;height:44px;flex-shrink:0;border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);background:#fff;border:1px solid var(--line);transition:background .15s,color .15s,border-color .15s;
+}
+.hist-btn svg{width:17px;height:17px;}
+.hist-btn:hover{background:var(--blue-soft);color:var(--blue);border-color:#C8D6EE;}
+.hist-btn.active{background:var(--blue-tint);color:var(--blue-deep);border-color:#C8D6EE;}
+
+/* --- Vista de Tareas históricas --- */
+.pending-group-head{cursor:pointer;user-select:none;}
+.pending-group-head .chevron{margin-right:2px;}
+.hist-row .pending-name{text-decoration:line-through;text-decoration-color:var(--text-faint);}
+.hist-note{
+  margin-top:5px;font-size:12px;font-style:italic;color:var(--text-muted);
+  background:var(--surface-2);border-radius:8px;padding:7px 10px;max-width:60ch;
+}
+.hist-row:not([data-open]){cursor:default;}
 </style>
 </head>
 <body>
@@ -1613,10 +1683,15 @@ input,select,textarea{font-family:inherit;}
     </div>
 
     <div class="sidebar-footer">
-      <button class="back-cover-btn" id="backToCover" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
-        Volver a la portada
-      </button>
+      <div class="sidebar-footer-row">
+        <button class="back-cover-btn" id="backToCover" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+          Volver a la portada
+        </button>
+        <button class="hist-btn" id="historicalBtn" type="button" title="Tareas históricas: completadas que se quitaron de Pendientes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>
+        </button>
+      </div>
       <div class="today-pill">
         <div class="lbl">Hoy</div>
         <div class="val" id="todayLabel">—</div>
@@ -2200,8 +2275,25 @@ const state = {
   syncStarted: false, // evita arrancar el polling de Google Sheets más de una vez
   sidebarProcessesOpen: false, // "Grandes temas" del sidebar, oculto por defecto
   selectedProcess: null, // gran tema mostrado en la vista de detalle por tema (independiente de los filtros)
-  pdOpenSub: {} // subtemas expandidos dentro de la vista de detalle por tema
+  pdOpenSub: {}, // subtemas expandidos dentro de la vista de detalle por tema
+  editProc: false, // si el nombre del gran tema actual está en edición
+  editSub: null, // id del subtema cuyo nombre está en edición
+  addingSubFor: null, // processId con el formulario de "agregar subtema" abierto
+  addingProc: false, // formulario de "agregar gran tema" abierto en el menú lateral
+  historicalDismissed: [], // tareas completadas que se quitaron de Pendientes (más recientes primero)
+  histOpenProc: {} // qué grupos de Tareas históricas están expandidos
 };
+
+// Genera un id único a partir de un nombre, evitando choques con los ids existentes
+function slugId(prefix, name){
+  const base = String(name||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,28) || "item";
+  const exists = id => PROCESSES.some(p=>p.id===id) || SUBTHEMES.some(s=>s.id===id);
+  let id = `${prefix}_${base}`, n = 2;
+  while(exists(id)){ id = `${prefix}_${base}_${n}`; n++; }
+  return id;
+}
+const NEW_PROCESS_COLORS = ["#1F55B0","#0E9A8E","#6E62E0","#DE9A2E","#E15B54","#2E9BDE","#2FA463","#8E6FD1"];
 
 function byId(id){ return document.getElementById(id); }
 function parseDate(s){ return new Date(s+"T00:00:00"); }
@@ -2471,6 +2563,17 @@ function rollingWindowActivities(){ return filteredActivities().filter(inRolling
 function renderProcessNav(){
   const wrap = byId("processNavList");
   const flat = flattenActivities();
+  const addProcRowHtml = state.addingProc ? `
+    <div class="inline-add-proc-form">
+      <input type="text" id="newProcNameInput" placeholder="Nombre del nuevo gran tema" maxlength="70">
+      <div class="inline-add-proc-actions">
+        <button class="btn-primary" id="newProcSaveBtn" type="button">Crear</button>
+        <button class="clear-btn" id="newProcCancelBtn" type="button">Cancelar</button>
+      </div>
+    </div>` : `
+    <button class="nav-item add-process-item" id="addProcessBtn" type="button">
+      ${iconPlus()} Agregar gran tema
+    </button>`;
   wrap.innerHTML = PROCESSES.map(p=>{
     const items = flat.filter(a=>a.processId===p.id);
     const count = items.length;
@@ -2490,18 +2593,51 @@ function renderProcessNav(){
         <span style="font-family:var(--font-mono);font-size:10.5px;color:#8091B4;">${count}</span>
       </span>
     </div>`;
-  }).join("");
+  }).join("") + addProcRowHtml;
   wrap.style.display = state.sidebarProcessesOpen ? "block" : "none";
   byId("sidebarProcessesToggle").querySelector(".nav-label-chevron").classList.toggle("open", state.sidebarProcessesOpen);
   wrap.querySelectorAll("[data-process-jump]").forEach(el=>{
     el.addEventListener("click", ()=>{
       // Navegación independiente de los filtros globales: Pendientes/Dashboard no se ven afectados.
+      if(state.selectedProcess !== el.dataset.processJump) resetProcessEditState();
       state.selectedProcess = el.dataset.processJump;
       state.view = "processDetail";
       setActiveNav();
       renderAll();
     });
   });
+
+  const addProcessBtn = byId("addProcessBtn");
+  if(addProcessBtn){
+    addProcessBtn.addEventListener("click", ()=>{ state.addingProc = true; renderProcessNav(); });
+  }
+  const newProcNameInput = byId("newProcNameInput");
+  if(newProcNameInput){
+    newProcNameInput.focus();
+    newProcNameInput.addEventListener("keydown", ev=>{
+      if(ev.key==="Enter"){ ev.preventDefault(); byId("newProcSaveBtn").click(); }
+      else if(ev.key==="Escape"){ state.addingProc = false; renderProcessNav(); }
+    });
+  }
+  const newProcSaveBtn = byId("newProcSaveBtn");
+  if(newProcSaveBtn){
+    newProcSaveBtn.addEventListener("click", ()=>{
+      const val = (byId("newProcNameInput").value || "").trim();
+      if(!val) return;
+      const id = slugId("proc", val);
+      const color = NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length];
+      PROCESSES.push({ id, name:val, desc:"", color });
+      state.addingProc = false;
+      state.selectedProcess = id;
+      state.view = "processDetail";
+      setActiveNav();
+      renderAll();
+    });
+  }
+  const newProcCancelBtn = byId("newProcCancelBtn");
+  if(newProcCancelBtn){
+    newProcCancelBtn.addEventListener("click", ()=>{ state.addingProc = false; renderProcessNav(); });
+  }
 }
 
 /* ================================================================
@@ -2616,7 +2752,9 @@ function openPersonTasks(personId){
   const p = personOf(personId);
   const tasks = flattenActivities().filter(a=>{
     if(!a.responsible.includes(personId)) return false;
-    if(a.status==="completada") return false;
+    // Se excluye por estado Y por avance: una tarea al 100% no es una alerta pendiente,
+    // aunque por algún desajuste de datos su estado todavía diga otra cosa.
+    if(a.status==="completada" || a.progress>=100) return false;
     return daysBetween(TODAY, parseDate(a.end)) <= 15; // solo alertas: vencidas o a ≤15 días
   });
   tasks.sort((a,b)=> parseDate(a.end)-parseDate(b.end));
@@ -3315,6 +3453,7 @@ function renderProcessDetail(){
     const subAvg = acts.length ? Math.round(acts.reduce((s,a)=>s+a.progress,0)/acts.length) : 0;
     const formOpen = !!state.addFormOpen[sub.id];
     const subUnreadCount = subthemeUnreadCount(sub);
+    const isEditingSub = state.editSub===sub.id;
 
     const actsHtml = acts.map(a=>`
       <div class="hsub" data-open-sub="${sub.id}|${a.id}">
@@ -3326,14 +3465,22 @@ function renderProcessDetail(){
         <div class="avatars-stack">${a.responsible.map(r=>avatarHtml(r,18)).join("")}</div>
       </div>`).join("");
 
+    const subNameHtml = isEditingSub
+      ? `<input type="text" class="inline-name-input" data-sub-name-input="${sub.id}" value="${sub.name.replace(/"/g,'&quot;')}" maxlength="90">`
+      : `<span class="hact-name-text">${sub.name}</span>`;
+
     return `
     <div class="hact">
       <div class="hact-head" data-toggle-act="${sub.id}">
         <svg class="chevron ${aOpen?'open':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
-        <div class="n">${sub.name}${progressBadge(subAvg,'md')}${msgIconHtml(subUnreadCount)}</div>
+        <div class="n">${subNameHtml}${progressBadge(subAvg,'md')}${msgIconHtml(subUnreadCount)}</div>
         <div class="hact-meta">
           <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);">${acts.length} tarea${acts.length===1?'':'s'} · ${acts.filter(a=>a.status==='completada').length} completada${acts.filter(a=>a.status==='completada').length===1?'':'s'}</span>
           <div class="avatars-stack">${(sub.defaultResponsible.length?sub.defaultResponsible:["cd"]).map(r=>avatarHtml(r,22)).join("")}</div>
+          <div class="hact-edit-actions">
+            <button class="icon-btn-sm" data-sub-edit="${sub.id}" title="${isEditingSub?'Guardar nombre':'Renombrar subtema'}">${isEditingSub?iconCheck():iconPencil()}</button>
+            <button class="icon-btn-sm danger" data-sub-delete="${sub.id}" title="Eliminar subtema">${iconTrash()}</button>
+          </div>
         </div>
       </div>
       ${aOpen ? `
@@ -3348,8 +3495,26 @@ function renderProcessDetail(){
     </div>`;
   }).join("");
 
+  const addSubFormHtml = state.addingSubFor===p.id ? `
+    <div class="inline-add-sub-form">
+      <input type="text" id="newSubNameInput" placeholder="Nombre del nuevo subtema" maxlength="90">
+      <button class="btn-primary" id="newSubSaveBtn" type="button">Crear subtema</button>
+      <button class="clear-btn" id="newSubCancelBtn" type="button">Cancelar</button>
+    </div>` : "";
+
+  const procTitleHtml = state.editProc
+    ? `<input type="text" id="procNameInput" class="inline-name-input inline-name-input-lg" value="${p.name.replace(/"/g,'&quot;')}" maxlength="80">`
+    : `<h2>${p.name}${msgIconHtml(procUnreadCount)}</h2>`;
+
   byId("viewWrap").innerHTML = `
-    <div class="section-title-page"><h2>${p.name}${msgIconHtml(procUnreadCount)}</h2><span>${p.desc}</span></div>
+    <div class="section-title-page proc-title-row">
+      ${procTitleHtml}
+      <span>${p.desc}</span>
+      <div class="proc-title-actions">
+        <button class="icon-btn-sm" id="procEditBtn" type="button" title="${state.editProc?'Guardar nombre':'Renombrar este gran tema'}">${state.editProc?iconCheck():iconPencil()}</button>
+        <button class="icon-btn-sm danger" id="procDeleteBtn" type="button" title="Eliminar este gran tema">${iconTrash()}</button>
+      </div>
+    </div>
 
     <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
       <div class="kpi-card" style="--bar:${p.color};--tint:${p.color}22;">
@@ -3372,6 +3537,8 @@ function renderProcessDetail(){
 
     <div class="hier-list" style="margin-bottom:24px;">
       ${subs.length ? `<div class="hproc"><div class="hact-list">${subsHtml}</div></div>` : '<div class="empty-state"><div class="t">Este gran tema todavía no tiene subtemas</div></div>'}
+      <button class="add-act-btn" id="addSubthemeBtn" type="button" style="margin-top:12px;">${iconPlus()} Agregar subtema</button>
+      ${addSubFormHtml}
     </div>
 
     <div class="section-title-page"><h2 style="font-size:15px;">Cronograma de ${p.name}</h2><span>Solo las tareas de este gran tema, marcando completadas, vencidas y en riesgo</span></div>
@@ -3750,6 +3917,127 @@ function wireProcessDetailEvents(){
   wrap.querySelectorAll("[data-open-mini]").forEach(el=>{
     el.addEventListener("click", ()=>{ const [sId,aId]=el.dataset.openMini.split("|"); openDetail(sId,aId); });
   });
+
+  // ---- Renombrar / eliminar / agregar grandes temas y subtemas ----
+  const p = processOf(state.selectedProcess);
+
+  function commitProcEdit(){
+    const inp = byId("procNameInput");
+    const val = inp ? inp.value.trim() : "";
+    if(val) p.name = val;
+    state.editProc = false;
+  }
+  const procEditBtn = byId("procEditBtn");
+  if(procEditBtn){
+    procEditBtn.addEventListener("click", ()=>{
+      if(state.editProc) commitProcEdit(); else state.editProc = true;
+      renderAll();
+    });
+  }
+  const procNameInput = byId("procNameInput");
+  if(procNameInput){
+    procNameInput.addEventListener("keydown", ev=>{
+      if(ev.key==="Enter"){ ev.preventDefault(); commitProcEdit(); renderAll(); }
+      else if(ev.key==="Escape"){ state.editProc = false; renderAll(); }
+    });
+    procNameInput.focus();
+    procNameInput.setSelectionRange(procNameInput.value.length, procNameInput.value.length);
+  }
+  const procDeleteBtn = byId("procDeleteBtn");
+  if(procDeleteBtn){
+    procDeleteBtn.addEventListener("click", ()=>{
+      const subCount = SUBTHEMES.filter(s=>s.processId===p.id).length;
+      const taskCount = flattenActivities().filter(a=>a.processId===p.id).length;
+      const msg = (subCount || taskCount)
+        ? `Vas a eliminar "${p.name}" junto con ${subCount} subtema(s) y ${taskCount} tarea(s). Esta acción no se puede deshacer.\n\n¿Quieres continuar?`
+        : `¿Eliminar el gran tema "${p.name}"? Esta acción no se puede deshacer.`;
+      if(!window.confirm(msg)) return;
+      const idx = PROCESSES.findIndex(x=>x.id===p.id);
+      if(idx>-1) PROCESSES.splice(idx,1);
+      for(let i=SUBTHEMES.length-1;i>=0;i--){ if(SUBTHEMES[i].processId===p.id) SUBTHEMES.splice(i,1); }
+      state.selectedProcess = null;
+      state.view = "dashboard";
+      setActiveNav();
+      renderAll();
+    });
+  }
+
+  wrap.querySelectorAll("[data-sub-name-input]").forEach(inp=>{
+    inp.addEventListener("click", ev=> ev.stopPropagation());
+    inp.addEventListener("keydown", ev=>{
+      ev.stopPropagation();
+      if(ev.key==="Enter"){ ev.preventDefault(); const btn = wrap.querySelector(`[data-sub-edit="${inp.dataset.subNameInput}"]`); if(btn) btn.click(); }
+      else if(ev.key==="Escape"){ state.editSub = null; renderProcessDetail(); }
+    });
+    inp.focus();
+    inp.setSelectionRange(inp.value.length, inp.value.length);
+  });
+  wrap.querySelectorAll("[data-sub-edit]").forEach(btn=>{
+    btn.addEventListener("click", ev=>{
+      ev.stopPropagation();
+      const id = btn.dataset.subEdit;
+      if(state.editSub===id){
+        const inp = wrap.querySelector(`[data-sub-name-input="${id}"]`);
+        const val = inp ? inp.value.trim() : "";
+        const sub = subthemeOf(id);
+        if(sub && val) sub.name = val;
+        state.editSub = null;
+      } else {
+        state.editSub = id;
+      }
+      renderProcessDetail();
+    });
+  });
+  wrap.querySelectorAll("[data-sub-delete]").forEach(btn=>{
+    btn.addEventListener("click", ev=>{
+      ev.stopPropagation();
+      const id = btn.dataset.subDelete;
+      const sub = subthemeOf(id);
+      if(!sub) return;
+      const n = sub.activities.length;
+      const msg = n
+        ? `Vas a eliminar el subtema "${sub.name}" junto con sus ${n} tarea(s). Esta acción no se puede deshacer.\n\n¿Quieres continuar?`
+        : `¿Eliminar el subtema "${sub.name}"? Esta acción no se puede deshacer.`;
+      if(!window.confirm(msg)) return;
+      const idx = SUBTHEMES.findIndex(x=>x.id===id);
+      if(idx>-1) SUBTHEMES.splice(idx,1);
+      if(state.editSub===id) state.editSub = null;
+      renderProcessDetail();
+    });
+  });
+
+  const addSubthemeBtn = byId("addSubthemeBtn");
+  if(addSubthemeBtn){
+    addSubthemeBtn.addEventListener("click", ()=>{
+      state.addingSubFor = state.addingSubFor===p.id ? null : p.id;
+      renderProcessDetail();
+    });
+  }
+  const newSubNameInput = byId("newSubNameInput");
+  if(newSubNameInput){
+    newSubNameInput.focus();
+    newSubNameInput.addEventListener("keydown", ev=>{
+      if(ev.key==="Enter"){ ev.preventDefault(); byId("newSubSaveBtn").click(); }
+      else if(ev.key==="Escape"){ state.addingSubFor = null; renderProcessDetail(); }
+    });
+  }
+  const newSubSaveBtn = byId("newSubSaveBtn");
+  if(newSubSaveBtn){
+    newSubSaveBtn.addEventListener("click", ()=>{
+      const val = (byId("newSubNameInput").value || "").trim();
+      if(!val) return;
+      const id = slugId("sub", val);
+      const defaultResp = state.viewingAs && state.viewingAs!=="cd" ? [state.viewingAs] : ["cd"];
+      SUBTHEMES.push({ id, processId:p.id, name:val, defaultResponsible:defaultResp, activities:[] });
+      state.addingSubFor = null;
+      state.hierOpenAct[id] = true;
+      renderAll();
+    });
+  }
+  const newSubCancelBtn = byId("newSubCancelBtn");
+  if(newSubCancelBtn){
+    newSubCancelBtn.addEventListener("click", ()=>{ state.addingSubFor = null; renderProcessDetail(); });
+  }
 }
 
 function submitNewActivity(subthemeId){
@@ -3926,11 +4214,100 @@ function renderPending(){
   byId("viewWrap").querySelectorAll("[data-dismiss]").forEach(el=>{
     el.addEventListener("click", (ev)=>{
       ev.stopPropagation();
-      state.dismissedPending.add(el.dataset.dismiss);
+      const key = el.dataset.dismiss;
+      const [sId, aId] = key.split("|");
+      const act = flattenActivities().find(x=> x.subthemeId===sId && x.id===aId);
+      if(!act) return;
+      const note = window.prompt(
+        `¿Quieres dejar una nota u observación de cierre para "${act.name}"?\nDéjalo vacío si no quieres agregar nada.`, "");
+      if(note===null) return; // canceló: la tarea sigue viéndose en Pendientes
+      state.dismissedPending.add(key);
+      state.historicalDismissed.unshift({
+        subthemeId: sId, activityId: aId,
+        processId: act.processId, processName: act.process ? act.process.name : "", processColor: act.process ? act.process.color : "#9AA5BD",
+        name: act.name, subthemeName: act.subthemeName, end: act.end, progress: act.progress,
+        responsible: act.responsible.slice(), note: note.trim(),
+        dismissedAt: new Date().toISOString(), dismissedBy: state.viewingAs
+      });
       renderPending();
     });
   });
   wireNotifBadges(byId("viewWrap"), renderPending);
+}
+
+/* ================================================================
+   9B. TAREAS HISTÓRICAS — completadas quitadas de Pendientes
+   Se agrupan por gran tema (colapsadas por defecto) y, dentro de
+   cada grupo, se muestran primero las quitadas más recientemente.
+   ================================================================ */
+function renderHistorical(){
+  const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
+  const groups = {};
+  state.historicalDismissed.forEach(h=>{ (groups[h.processId] = groups[h.processId] || []).push(h); });
+  Object.keys(groups).forEach(pid=> groups[pid].sort((a,b)=> new Date(b.dismissedAt) - new Date(a.dismissedAt)) );
+  const procIds = Object.keys(groups).sort((a,b)=>{
+    const la = groups[a][0] ? new Date(groups[a][0].dismissedAt) : 0;
+    const lb = groups[b][0] ? new Date(groups[b][0].dismissedAt) : 0;
+    return lb - la; // el gran tema con la eliminación más reciente va primero
+  });
+
+  function rowHtml(h){
+    const stillExists = !!findActivity(h.subthemeId, h.activityId);
+    const d = new Date(h.dismissedAt);
+    const dLabel = isNaN(d) ? "" : d.toLocaleDateString('es-CO',{day:'2-digit',month:'short',year:'numeric'});
+    return `<div class="pending-row done hist-row" ${stillExists?`data-open="${h.subthemeId}|${h.activityId}"`:''}>
+      <div class="pending-main">
+        <div class="pending-name">${h.name}</div>
+        <div class="pending-meta"><span>${h.subthemeName}</span></div>
+        ${h.note ? `<div class="hist-note">"${h.note}"</div>` : ""}
+      </div>
+      <div class="pending-resp">${h.responsible.map(r=>avatarHtml(r,22)).join("")}</div>
+      ${statusTag("completada")}
+      <div class="pending-deadline">
+        ${fmtShort(h.end)}
+        <span class="pending-days">Quitada el ${dLabel}</span>
+      </div>
+      <span></span>
+    </div>`;
+  }
+
+  const groupsHtml = procIds.map(pid=>{
+    const p = processOf(pid);
+    const arr = groups[pid];
+    const name = p ? p.name : (arr[0].processName || "Gran tema eliminado");
+    const color = p ? p.color : (arr[0].processColor || "#9AA5BD");
+    const open = !!state.histOpenProc[pid];
+    return `<div class="pending-group">
+      <div class="pending-group-head" data-hist-toggle="${pid}">
+        <svg class="chevron ${open?'open':''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:14px;height:14px;"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="pdot" style="background:${color}"></span>${name}<span class="pending-group-count">${arr.length}</span>
+      </div>
+      ${open ? arr.map(rowHtml).join("") : ""}
+    </div>`;
+  }).join("");
+
+  byId("viewWrap").innerHTML = `
+    <div class="section-title-page"><h2>Tareas históricas</h2><span>${state.historicalDismissed.length} tarea${state.historicalDismissed.length===1?'':'s'} completada${state.historicalDismissed.length===1?'':'s'} que se quitaron de Pendientes · agrupadas por gran tema, clic para desplegar</span></div>
+    <div class="pending-list-wrap">
+      ${groupsHtml || '<div class="empty-state"><div class="t">Todavía no hay tareas históricas</div><div class="s">Cuando quites una tarea completada de Pendientes, quedará guardada aquí con su nota de cierre.</div></div>'}
+    </div>
+  `;
+  byId("viewWrap").scrollTop = _scrollPos;
+
+  byId("viewWrap").querySelectorAll("[data-hist-toggle]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = el.dataset.histToggle;
+      state.histOpenProc[id] = !state.histOpenProc[id];
+      renderHistorical();
+    });
+  });
+  byId("viewWrap").querySelectorAll("[data-open]").forEach(el=>{
+    el.addEventListener("click", (ev)=>{
+      ev.stopPropagation();
+      const [sId,aId] = el.dataset.open.split("|");
+      openDetail(sId,aId);
+    });
+  });
 }
 
 /* ================================================================
@@ -4174,6 +4551,10 @@ function iconGrid(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="curren
 function iconCheck(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>`; }
 function iconAlert(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>`; }
 function iconClock(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`; }
+function iconPencil(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`; }
+function iconTrash(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>`; }
+function iconPlus(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>`; }
+function iconArchive(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="5" rx="1.5"/><path d="M5 9v9a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>`; }
 
 /* ================================================================
    11. NAV / VIEW SWITCH
@@ -4182,10 +4563,13 @@ const VIEW_META = {
   dashboard:{ title:"Dashboard", sub:"Elige vista mensual (30 días) o anual (todas las tareas)" },
   timeline:{ title:"Cronograma", sub:"Distribución de tareas en los 12 meses de 2026" },
   pending:{ title:"Pendientes", sub:"Todo lo que sigue abierto, ordenado por deadline y prioridad" },
-  processDetail:{ title:"Gran tema", sub:"" }
+  processDetail:{ title:"Gran tema", sub:"" },
+  historical:{ title:"Tareas históricas", sub:"Completadas que se quitaron de Pendientes, con su nota de cierre" }
 };
 function setActiveNav(){
   document.querySelectorAll(".nav-item[data-view]").forEach(el=> el.classList.toggle("active", el.dataset.view===state.view));
+  const histBtn = byId("historicalBtn");
+  if(histBtn) histBtn.classList.toggle("active", state.view==="historical");
 }
 function updatePendingNotifDot(){
   const dot = byId("pendingNotifDot");
@@ -4241,8 +4625,13 @@ function renderAll(){
   updatePendingNotifDot();
   updateCrumbs();
 
-  // La barra de filtros no aplica en el Dashboard (es una vista de resumen)
-  const hideFilters = state.view==="dashboard" || !state.dataLoaded;
+  // Los filtros solo tienen sentido en Cronograma y Pendientes, y solo cuando se
+  // está viendo todo el equipo o a Carolina: para una persona individual el filtro
+  // de responsable ya está fijo en ella, así que la barra sobra.
+  const filtersAllowedHere = state.view==="timeline" || state.view==="pending" || state.view==="processDetail";
+  const filtersAllowedForPerson = !state.viewingAs || state.viewingAs==="cd";
+  const hideFilters = !state.dataLoaded || !filtersAllowedHere
+    || ((state.view==="timeline" || state.view==="pending") && !filtersAllowedForPerson);
   byId("filterBar").style.display = hideFilters ? "none" : "flex";
   if(hideFilters) byId("filterDrawer").classList.remove("open");
   byId("filterDrawer").style.display = hideFilters ? "none" : "";
@@ -4253,10 +4642,16 @@ function renderAll(){
   else if(state.view==="timeline") renderTimeline();
   else if(state.view==="pending") renderPending();
   else if(state.view==="processDetail") renderProcessDetail();
+  else if(state.view==="historical") renderHistorical();
+}
+function resetProcessEditState(){
+  state.editProc = false;
+  state.editSub = null;
+  state.addingSubFor = null;
 }
 function wireNav(){
   document.querySelectorAll(".nav-item[data-view]").forEach(el=>{
-    el.addEventListener("click", ()=>{ state.view = el.dataset.view; setActiveNav(); renderAll(); });
+    el.addEventListener("click", ()=>{ resetProcessEditState(); state.view = el.dataset.view; setActiveNav(); renderAll(); });
   });
   byId("sidebarProcessesToggle").addEventListener("click", ()=>{
     state.sidebarProcessesOpen = !state.sidebarProcessesOpen;
@@ -4576,7 +4971,8 @@ function updateCrumbs(){
   const who = state.viewingAs ? personOf(state.viewingAs).name : "Todo el equipo";
   const sep = `<svg class="crumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
   el.innerHTML = `<button type="button" class="crumb-link" data-crumb-home title="Volver a la portada">Portada</button>${sep}<span>${who}</span>`
-    + (state.view==="processDetail" ? `${sep}<span>Grandes temas</span>` : "");
+    + (state.view==="processDetail" ? `${sep}<span>Grandes temas</span>` : "")
+    + (state.view==="historical" ? `${sep}<span>Tareas históricas</span>` : "");
 }
 
 // Elementos clicables generados dinámicamente: los hace alcanzables con teclado
@@ -4599,6 +4995,16 @@ function wireShellUX(){
   toggle.addEventListener("click", ()=> setNav(!sidebar.classList.contains("open")));
   scrim.addEventListener("click", ()=> setNav(false));
   byId("backToCover").addEventListener("click", ()=>{ setNav(false); showCoverScreen(); });
+  byId("historicalBtn").addEventListener("click", ()=>{
+    setNav(false);
+    resetProcessEditState();
+    state.view = "historical";
+    setActiveNav();
+    renderAll();
+    const vw = byId("viewWrap");
+    vw.scrollTop = 0;
+    vw.classList.remove("view-enter"); void vw.offsetWidth; vw.classList.add("view-enter");
+  });
   byId("crumbs").addEventListener("click", e=>{ if(e.target.closest("[data-crumb-home]")) showCoverScreen(); });
 
   // Al elegir una vista: cerrar el menú móvil, subir al inicio y animar la entrada del contenido
