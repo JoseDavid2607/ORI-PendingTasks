@@ -2023,6 +2023,7 @@ const MONTHS_FULL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","A
 const SHEETS_API_URL = "https://script.google.com/a/macros/uniandes.edu.co/s/AKfycbwJ3ZoeAKpZKCoIFTt0lOBsqDyk8I9YUvCYggNcrhEpZT8JUVEqELW3POCnclSZs1iJ6g/exec";
 const API_TOKEN = "ORI-d6d1f5b6a698a6a4013dbeef69915b52";
 const SYNC_POLL_MS = 20000; // frecuencia de refresco automático (20s)
+const SYNC_POST_TIMEOUT_MS = 45000; // guardar puede tardar más que leer (Google a veces demora en "despertar" el script)
 const SYNC_TIMEOUT_MS = 20000; // tiempo máximo de espera por petición antes de reintentar
 const SYNC_RETRIES = 3; // intentos por petición (con esperas de 1s, 2s, 4s)
 const SYNC_FAILS_BEFORE_ERROR = 2; // fallos seguidos antes de avisar "sin conexión"
@@ -2159,7 +2160,7 @@ async function fetchWithTimeout(url, options, ms){
   // algunos entornos —como el visor de Claude— no permiten enviar una señal de cancelación.
   let timer;
   const timeout = new Promise((_, reject)=>{
-    timer = setTimeout(()=> reject(new Error("Tiempo de espera agotado")), ms || SYNC_TIMEOUT_MS);
+    timer = setTimeout(()=>{ const te = new Error("Tiempo de espera agotado"); te.timeout = true; reject(te); }, ms || SYNC_TIMEOUT_MS);
   });
   try{
     return await Promise.race([ fetch(url, options), timeout ]);
@@ -2238,6 +2239,9 @@ function flushReads(useKeepalive){
     if(!r || !r.ok) SERVER_READS[viewer] = (SERVER_READS[viewer]||[]).filter(k=> !fresh.includes(k));   // se reintenta en la próxima sincronización
   });
 }
+window.addEventListener("beforeunload", e=>{
+  if((state.pendingWrites||0) > 0){ e.preventDefault(); e.returnValue = "Hay cambios que todavía se están guardando en el Excel. Si sales ahora podrían perderse."; return e.returnValue; }
+});
 window.addEventListener("pagehide", ()=>{ saveNav(); if(state.dataLoaded){ captureSeenNotes(); flushReads(true); } });
 
 /* ---- Estructura: la hoja manda también en los grandes temas y subtemas ----
@@ -2454,7 +2458,7 @@ async function postToSheet(payload){
         headers:{ "Content-Type":"text/plain;charset=utf-8" }, // evita preflight CORS en Apps Script
         body: JSON.stringify(payload),
         redirect:"follow"
-      });
+      }, SYNC_POST_TIMEOUT_MS);
       if(!res.ok) throw new Error("HTTP " + res.status);
       const d = await res.json();
       if(!d.ok){
@@ -2463,7 +2467,7 @@ async function postToSheet(payload){
         throw e;
       }
       return d;
-    });
+    }, 2);   // los guardados son idempotentes: un reintento es seguro y no duplica nada
     state.syncFails = 0;
     state.lastSyncAt = new Date();
     setSyncStatus("ok");
@@ -2475,8 +2479,15 @@ async function postToSheet(payload){
     }
     console.warn("Post error:", err);
     if(!quiet){
-      showToast("No se pudo guardar el cambio en la hoja de Google: " + (err && err.message ? err.message : err) + ". La pantalla se restablece con lo que hay en la hoja.", 9000);
-      setTimeout(()=> syncFromSheet(true), 400);   // vuelve a mostrar lo que realmente quedó en la hoja
+      if(err && err.timeout){
+        // Google tardó en responder, pero casi siempre el cambio sí se guarda: se espera y se verifica antes de restablecer la pantalla
+        showToast("La hoja de Google está tardando en responder. El cambio puede haberse guardado: lo estoy verificando…", 12000);
+        setTimeout(()=> syncFromSheet(true), 12000);
+        setTimeout(()=> syncFromSheet(true), 30000);
+      } else {
+        showToast("No se pudo guardar el cambio en la hoja de Google: " + (err && err.message ? err.message : err) + ". La pantalla se restablece con lo que hay en la hoja.", 9000);
+        setTimeout(()=> syncFromSheet(true), 400);   // vuelve a mostrar lo que realmente quedó en la hoja
+      }
     }
     return { ok:false, error:String(err) };
   } finally {
@@ -2619,17 +2630,23 @@ function renderProcessNav(){
   }
   const newProcSaveBtn = byId("newProcSaveBtn");
   if(newProcSaveBtn){
-    newProcSaveBtn.addEventListener("click", ()=>{
+    newProcSaveBtn.addEventListener("click", async ()=>{
+      if(newProcSaveBtn.disabled) return;
       const val = (byId("newProcNameInput").value || "").trim();
       if(!val) return;
       const id = slugId("proc", val);
       const color = NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length];
-      PROCESSES.push({ id, name:val, desc:"", color });
       // Un gran tema nuevo nace con un subtema "General" para que exista también en la hoja
       const subId = slugId("sub", "general_" + val);
       const defResp = state.viewingAs ? [state.viewingAs] : [];
-      SUBTHEMES.push({ id:subId, processId:id, name:"General", defaultResponsible:defResp, activities:[] });
-      postToSheet({ action:"addSubtheme", subtheme:{ id:subId, granTema:val, name:"General", procId:id, color:color, desc:"" } });
+      newProcSaveBtn.disabled = true; newProcSaveBtn.textContent = "Guardando…";
+      const res = await postToSheet({ action:"addSubtheme", subtheme:{ id:subId, granTema:val, name:"General", procId:id, color:color, desc:"" } });
+      if(!res || !res.ok){
+        if(newProcSaveBtn.isConnected){ newProcSaveBtn.disabled = false; newProcSaveBtn.textContent = "Crear"; }
+        return;
+      }
+      if(!processOf(id)) PROCESSES.push({ id, name:val, desc:"", color });
+      if(!subthemeOf(subId)) SUBTHEMES.push({ id:subId, processId:id, name:"General", defaultResponsible:defResp, activities:[] });
       state.addingProc = false;
       state.selectedProcess = id;
       state.view = "processDetail";
@@ -4086,13 +4103,20 @@ function wireProcessDetailEvents(){
   }
   const newSubSaveBtn = byId("newSubSaveBtn");
   if(newSubSaveBtn){
-    newSubSaveBtn.addEventListener("click", ()=>{
+    newSubSaveBtn.addEventListener("click", async ()=>{
+      if(newSubSaveBtn.disabled) return;
       const val = (byId("newSubNameInput").value || "").trim();
       if(!val) return;
       const id = slugId("sub", val);
       const defaultResp = state.viewingAs ? [state.viewingAs] : [];
-      SUBTHEMES.push({ id, processId:p.id, name:val, defaultResponsible:defaultResp, activities:[] });
-      postToSheet({ action:"addSubtheme", subtheme:{ id, granTema:p.name, name:val, procId:p.id } });
+      // El subtema solo aparece cuando la hoja confirma que quedó guardado: así nunca se ve algo que en realidad no se grabó
+      newSubSaveBtn.disabled = true; newSubSaveBtn.textContent = "Guardando en el Excel…";
+      const res = await postToSheet({ action:"addSubtheme", subtheme:{ id, granTema:p.name, name:val, procId:p.id } });
+      if(!res || !res.ok){
+        if(newSubSaveBtn.isConnected){ newSubSaveBtn.disabled = false; newSubSaveBtn.textContent = "Crear subtema"; }   // el nombre escrito se conserva para reintentar
+        return;
+      }
+      if(!subthemeOf(id)) SUBTHEMES.push({ id, processId:p.id, name:val, defaultResponsible:defaultResp, activities:[] });
       state.addingSubFor = null;
       state.hierOpenAct[id] = true;
       renderAll();
