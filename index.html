@@ -1596,6 +1596,51 @@ input,select,textarea{font-family:inherit;}
   background:var(--surface-2);border-radius:8px;padding:7px 10px;max-width:60ch;
 }
 .hist-row:not([data-open]){cursor:default;}
+
+/* ================================================================
+   Ajustes de esta versión
+   ================================================================ */
+/* Botones "Agregar tarea" / "Agregar subtema": más sutiles */
+.add-act-btn{
+  background:transparent;color:var(--blue);border:1px solid var(--line);box-shadow:none;
+  padding:8px 14px;font-size:12.5px;font-weight:600;border-radius:22px;
+}
+.add-act-btn:hover{background:var(--blue-tint);border-color:#C8D6EE;box-shadow:none;transform:none;}
+/* Contador de grandes temas en la barra lateral */
+.nav-label-count{
+  display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:18px;padding:0 6px;margin-left:6px;
+  border-radius:9px;background:var(--blue-tint);color:var(--blue);font-size:10.5px;font-weight:700;
+}
+/* Carga por responsable: filas de gran tema */
+.pgt-row{display:flex;align-items:center;gap:12px;padding:12px 8px;border-bottom:1px solid var(--line-soft);}
+.pgt-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.pgt-name{flex:1;min-width:0;font-size:13px;font-weight:600;}
+.pgt-count{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+.pgt-count b{font-family:var(--font-mono);font-size:14px;color:var(--text);margin-right:2px;}
+/* Responsables editables */
+.resp-chip .resp-x{
+  width:18px;height:18px;margin-left:2px;border-radius:50%;font-size:14px;line-height:1;color:var(--text-faint);
+  display:inline-flex;align-items:center;justify-content:center;
+}
+.resp-chip .resp-x:hover{background:var(--coral-tint);color:var(--coral);}
+.resp-add-sel{margin-top:10px;max-width:100%;}
+/* Ubicación de la tarea */
+.move-box{display:flex;flex-direction:column;gap:6px;}
+.move-lbl{font-size:10.5px;font-weight:700;color:var(--text-faint);text-transform:uppercase;letter-spacing:.4px;margin-top:4px;}
+.move-box .fsel{width:100%;}
+.move-apply-btn{
+  align-self:flex-start;margin-top:8px;font-size:12.5px;font-weight:600;color:var(--blue);
+  padding:8px 14px;border-radius:22px;border:1px solid var(--line);background:transparent;transition:background .15s,border-color .15s;
+}
+.move-apply-btn:hover:not(:disabled){background:var(--blue-tint);border-color:#C8D6EE;}
+.move-apply-btn:disabled{opacity:.45;cursor:not-allowed;}
+/* Aviso corto en pantalla */
+.app-toast{
+  position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);max-width:min(560px,92vw);z-index:9999;
+  background:#1E2A44;color:#fff;font-size:13px;line-height:1.45;padding:12px 18px;border-radius:12px;
+  box-shadow:0 10px 30px rgba(20,30,60,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.app-toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
 <body>
@@ -1675,7 +1720,7 @@ input,select,textarea{font-family:inherit;}
 
       <div class="nav-group">
         <div class="nav-label nav-label-toggle" id="sidebarProcessesToggle" role="button" tabindex="0" title="Mostrar u ocultar los grandes temas">
-          <span>Grandes temas</span>
+          <span>Grandes temas <span class="nav-label-count" id="processCountBadge"></span></span>
           <svg class="nav-label-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
         </div>
         <div id="processNavList" style="display:none;"></div>
@@ -1869,395 +1914,103 @@ const TEAM = {
 };
 
 const PROCESSES = [
-  { id:"acred_rank", name:"Acreditaciones / Rankings",                                   color:"#2E9BDE", desc:"Estándares de acreditación internacional y posicionamiento en rankings globales." },
-  { id:"dobles_epos", name:"Dobles Titulación EPOS (GLOCAL / KLU / UPF Online)",          color:"#7C6FE0", desc:"Programas de doble titulación de posgrado con universidades socias." },
-  { id:"dobles_pre",  name:"Dobles Titulación PRE (NEOMA / TBS / FGV / Tulane / Tilburg)",color:"#B45FC9", desc:"Programas de doble titulación de pregrado con universidades socias." },
-  { id:"convenios_esp", name:"Gestión de Convenios Específicos",                          color:"#8A6BD1", desc:"Convenios CEMS, renovaciones, estrategia y depuración del portafolio." },
-  { id:"oport_intl", name:"Oportunidades Internacionales (PRE / EPOS)",                   color:"#3EA6A0", desc:"Difusión, asesoría y acompañamiento a estudiantes de pregrado y posgrado." },
-  { id:"visitantes", name:"Visitantes Internacionales",                                   color:"#0E9A8E", desc:"Seminarios y acompañamiento a profesores y delegaciones visitantes." },
-  { id:"escuela_verano", name:"Escuela de Verano",                                        color:"#2FA463", desc:"Programa académico intensivo con oferta de cursos internacionales." },
-  { id:"semanas_intl", name:"Semanas Internacionales",                                    color:"#DE9A2E", desc:"Ciclos de actividades de sensibilización global en el campus." },
-  { id:"eventos", name:"Organización de Eventos y Conferencias",                          color:"#E1935B", desc:"Producción logística y académica de eventos internacionales." },
-  { id:"iab", name:"IAB · International Advisory Board",                                  color:"#C9922F", desc:"Gestión del consejo asesor internacional de la Facultad." },
-  { id:"prme", name:"Informes PRME",                                                      color:"#5B667D", desc:"Reporte de principios para la educación en gestión responsable." },
-  { id:"kpis", name:"Gestión de KPIs y Estadísticas",                                      color:"#4C8BF5", desc:"Consolidación de indicadores de internacionalización." },
-  { id:"posicionamiento", name:"Posicionamiento y Promoción Internacional",               color:"#E15B54", desc:"Estrategia de visibilidad y marca internacional de la Facultad." },
-  { id:"relacionamiento", name:"Relacionamiento en Actividades Internacionales U.",       color:"#4FB0C6", desc:"Articulación con otras áreas y unidades de la Universidad." },
-  { id:"becas", name:"Competencias y Becas Internacionales",                              color:"#9AA23C", desc:"Postulaciones a becas, concursos y competencias internacionales." },
-  { id:"web", name:"Página Web de Internacionalización",                                  color:"#6B8CCE", desc:"Mantenimiento y actualización del sitio web de la Facultad." },
-  { id:"otros", name:"Otros",                                                               color:"#7B8794", desc:"Actividades transversales que no encajan en otro gran tema." }
+  { id:"acred", name:"Acreditaciones", color:"#2E9BDE", desc:"Acreditaciones internacionales (AACSB, EQUIS, AMBA), estrategia de Facultad, informes PRME y datos para acreditación." },
+  { id:"rankings", name:"Rankings & Surveys - Gestión de KPIs", color:"#3B5BDB", desc:"Rankings, surveys, KPIs y estadísticas: manejo de datos, dashboards estratégicos, bases de datos, benchmark y BaseRoom institucional." },
+  { id:"dobles_epos", name:"Dobles Titulación EPOS (GLOCAL / KLU / UPF / Tulane)", color:"#7C6FE0", desc:"Programas de doble titulación de posgrado con universidades socias (GLOCAL, KLU, UPF, Tulane)." },
+  { id:"dobles_pre", name:"Dobles Titulación PRE (NEOMA / TBS / FGV / Tulane / Tilburg)", color:"#B45FC9", desc:"Programas de doble titulación de pregrado con universidades socias." },
+  { id:"convenios_esp", name:"Gestión de Convenios Específicos", color:"#8A6BD1", desc:"Convenios CEMS, renovaciones, estrategia y depuración del portafolio." },
+  { id:"oport_intl", name:"Oportunidades Internacionales (PRE / EPOS)", color:"#3EA6A0", desc:"Difusión, asesoría y acompañamiento a estudiantes de pregrado y posgrado." },
+  { id:"visitantes", name:"Visitantes Internacionales", color:"#0E9A8E", desc:"Seminarios y acompañamiento a profesores y delegaciones visitantes." },
+  { id:"escuela_verano", name:"Escuela de Verano", color:"#2FA463", desc:"Programa académico intensivo con oferta de cursos internacionales." },
+  { id:"semanas_intl", name:"Semanas Internacionales", color:"#DE9A2E", desc:"Ciclos de actividades de sensibilización global en el campus." },
+  { id:"eventos", name:"Organización de Eventos y Conferencias", color:"#E1935B", desc:"Producción logística y académica de eventos internacionales." },
+  { id:"iab", name:"IAB · International Advisory Board", color:"#C9922F", desc:"Gestión del consejo asesor internacional de la Facultad." },
+  { id:"posicionamiento", name:"Posicionamiento y Promoción Internacional", color:"#E15B54", desc:"Estrategia de visibilidad y marca internacional de la Facultad, incluida la página web de internacionalización." },
+  { id:"relacionamiento", name:"Relacionamiento en Actividades Internacionales U.", color:"#4FB0C6", desc:"Articulación con otras áreas y unidades de la Universidad." },
+  { id:"becas", name:"Competencias y Becas Internacionales", color:"#9AA23C", desc:"Postulaciones a becas, concursos y competencias internacionales." },
+  { id:"otros", name:"Otros", color:"#7B8794", desc:"Actividades transversales que no encajan en otro gran tema." }
 ];
 
-/* Cada subtema agrupa una o varias tareas reales.
-   defaultResponsible = equipo típico de ese subtema (sin contar a Carolina,
-   que puede seguir creciendo. */
+/* Cada subtema agrupa una o varias tareas. Aquí solo va la ESTRUCTURA: las tareas llegan desde la hoja de Google
+   (la hoja manda). defaultResponsible = equipo típico del subtema, se usa para preseleccionar responsables al crear tareas. */
 const SUBTHEMES = [
-
-  /* ---------------- ACRED_RANK ---------------- */
-  { id:"ar-1", processId:"acred_rank", name:"Comunicación de ajustes en estándares de acreditación", defaultResponsible:["jd"], activities:[
-    { id:"ar-1-a1", name:"Comunicar ajustes en estándares de acreditación a las unidades responsables", responsible:["jd"], status:"completada", priority:"media", start:"2026-01-12", end:"2026-02-06", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-2", processId:"acred_rank", name:"Baseroom", defaultResponsible:["jd"], activities:[
-    { id:"ar-2-a1", name:"Terminar Dashboard Faculty Analytics", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-01", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a2", name:"Revisar últimos comentarios de forma para los Dashbaords", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-01", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a3", name:"Terminar Dashboard International Analytics (Requisito Int. Seminarios, ExEd weeks, % cursos en inglés. Agregar semanas EMBA al reporte Int. Weeks)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-02", end:"2026-09-11", progress:50, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a4", name:"Realizar borrador dashboard boards, curriculum y matriculas", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-03", end:"2026-09-03", progress:70, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a5", name:"Últimos retoques al HTML PBR (Seneca Navigation)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-03", end:"2026-09-04", progress:50, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a6", name:"Citar reunión final PBR", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-04", end:"2026-09-04", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a7-mtrda3sp4z4", name:"Sacar cartelera final con CBUs y comp. org.", responsible:["jd"], status:"completada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a8-mtrda3sqtdv", name:"Hacer cocos board + cocos curriculum + matric.", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-10", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a9-mtrda3sqcik", name:"Retoques finales HTML PBR", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-07", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a10-mtrda3sq9a0", name:"Agregar Séneca Navega a PBR y en cronog. Int.", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-07", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a11-mtrda3sqq2n", name:"Citar equipo reunión PBR", responsible:["jd"], status:"completada", priority:"media", start:"2026-09-01", end:"2026-09-07", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-2-a12-mtrda3sqd0g", name:"Solicitar KPI's unidades", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-3", processId:"acred_rank", name:"Actualización y seguimiento de CVs", defaultResponsible:["ag","jd"], activities:[
-    { id:"ar-3-a1", name:"Actualizar y hacer seguimiento a CVs docentes para acreditación", responsible:["ag","jd"], status:"seguimiento", priority:"alta", start:"2026-01-05", end:"2026-12-18", progress:60, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-4", processId:"acred_rank", name:"Qualifications", defaultResponsible:["jd"], activities:[
-    { id:"ar-4-a1", name:"Probar Qualifications 202620", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-01", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-4-a2-mtrda3squyc", name:"Mejorar proceso Qualification con macros", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-20", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-4-a3-mtrda3sqfns", name:"Hacer template final cursos y profes nuevos", responsible:["jd"], status:"completada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ar-4-a4-mtrda3sqcdl", name:"Validar info con Carolina y subir 2026 final", responsible:["jd"], status:"completada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-5", processId:"acred_rank", name:"Análisis de resultados Financial Times", defaultResponsible:["jd"], activities:[
-    { id:"ar-5-a1", name:"Analizar resultados del ranking Financial Times", responsible:["jd"], status:"completada", priority:"alta", start:"2026-01-19", end:"2026-02-27", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-6", processId:"acred_rank", name:"Participación en QS", defaultResponsible:["jd"], activities:[
-    { id:"ar-6-a1", name:"Correo Qs y citar reu con Luis D., Carolina D. y Daniela B. para revosar criterios", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-11", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-7", processId:"acred_rank", name:"Benchmark Rankings Facultad", defaultResponsible:["jd"], activities:[
-    { id:"ar-7-a1", name:"Elaborar benchmark de rankings frente a facultades pares", responsible:["jd"], status:"seguimiento", priority:"media", start:"2026-06-01", end:"2026-07-17", progress:55, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ar-8", processId:"acred_rank", name:"Surveys AACSB", defaultResponsible:["jd"], activities:[
-    { id:"ar-8-a1", name:"Responder y consolidar Surveys de AACSB", responsible:["jd"], status:"ejecucion", priority:"alta", start:"2026-08-10", end:"2026-09-25", progress:35, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- DOBLES_EPOS ---------------- */
-  { id:"de-1", processId:"dobles_epos", name:"Negociaciones y reuniones periódicas", defaultResponsible:["ad"], activities:[
-    { id:"de-1-a1", name:"Sostener negociaciones y reuniones periódicas GLOCAL / KLU / UPF Online", responsible:["ad"], status:"ejecucion", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:55, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- DOBLES_PRE ---------------- */
-  { id:"dp-1", processId:"dobles_pre", name:"Gestión de dobles titulación de pregrado", defaultResponsible:["ad","sf"], activities:[
-    { id:"dp-1-a1", name:"Gestionar dobles titulación con NEOMA, TBS, FGV, Tulane y Tilburg", responsible:["ad","sf"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:60, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- CONVENIOS_ESP ---------------- */
-  { id:"ce-1", processId:"convenios_esp", name:"Convenios CEMS", defaultResponsible:["ad"], activities:[
-    { id:"ce-1-a1", name:"Gestionar convenio y obligaciones con la alianza CEMS", responsible:["ad"], status:"completada", priority:"media", start:"2026-02-02", end:"2026-04-03", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ce-2", processId:"convenios_esp", name:"Renovación de convenios", defaultResponsible:["ad"], activities:[
-    { id:"ce-2-a1", name:"Renovar convenios internacionales próximos a vencer", responsible:["ad"], status:"riesgo", priority:"alta", start:"2026-05-11", end:"2026-09-18", progress:45, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ce-3", processId:"convenios_esp", name:"Estrategia de convenios", defaultResponsible:["ad"], activities:[
-    { id:"ce-3-a1", name:"Definir estrategia y priorización de nuevos convenios", responsible:["ad"], status:"ejecucion", priority:"alta", start:"2026-06-01", end:"2026-08-21", progress:65, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ce-4", processId:"convenios_esp", name:"Depuración de convenios", defaultResponsible:["ad"], activities:[
-    { id:"ce-4-a1", name:"Depurar convenios inactivos o sin uso del portafolio", responsible:["ad"], status:"no-iniciada", priority:"baja", start:"2026-10-05", end:"2026-11-13", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- OPORT_INTL ---------------- */
-  { id:"oi-1", processId:"oport_intl", name:"Parrilla de redes (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-1-a1", name:"Diseñar y programar parrilla de redes sociales", responsible:["sf"], status:"completada", priority:"media", start:"2026-01-12", end:"2026-02-13", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-2", processId:"oport_intl", name:"Versión final del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-2-a1", name:"Actualizar documento e infografía del requisito internacional", responsible:["sf"], status:"completada", priority:"alta", start:"2026-03-02", end:"2026-04-17", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-3", processId:"oport_intl", name:"Reuniones periódicas informativas (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-3-a1", name:"Sostener reuniones informativas (pizza con el pregrado / padres)", responsible:["sf"], status:"ejecucion", priority:"media", start:"2026-01-19", end:"2026-11-20", progress:60, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-4", processId:"oport_intl", name:"Semana Internacional China (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-4-a1", name:"Producir la Semana Internacional China", responsible:["sf"], status:"preparacion", priority:"alta", start:"2026-09-07", end:"2026-09-11", progress:20, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-5", processId:"oport_intl", name:"Consejerías grupales e individuales (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-5-a1", name:"Brindar consejerías grupales e individuales de movilidad", responsible:["sf"], status:"seguimiento", priority:"media", start:"2026-02-02", end:"2026-11-27", progress:55, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-6", processId:"oport_intl", name:"Infografía de resultados de intercambio (PRE)", defaultResponsible:["sf"], activities:[
-    { id:"oi-6-a1", name:"Diseñar infografía de resultados del intercambio", responsible:["sf"], status:"completada", priority:"baja", start:"2026-06-01", end:"2026-07-10", progress:100, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-7", processId:"oport_intl", name:"Reuniones generales EPOS", defaultResponsible:["jd","ad"], activities:[
-    { id:"oi-7-a1", name:"Coordinar reuniones generales de oportunidades EPOS", responsible:["jd","ad"], status:"ejecucion", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:0, recurrence:"semestral", notes:[], files:[] },
-    { id:"oi-7-a2-mtrda3sq1ps", name:"Responder Glyn, Intekhab, Jamie", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-07", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"oi-8", processId:"oport_intl", name:"Reuniones específicas de actividades EPOS", defaultResponsible:["jd","ad"], activities:[
-    { id:"oi-8-a1", name:"Coordinar reuniones específicas por actividad EPOS", responsible:["jd","ad"], status:"ejecucion", priority:"media", start:"2026-03-02", end:"2026-10-16", progress:0, recurrence:"semestral", notes:[], files:[] }
-  ]},
-  { id:"oi-9", processId:"oport_intl", name:"Intercambios PRE", defaultResponsible:["jd"], activities:[
-    { id:"oi-9-a1", name:"Infografía resultados comité Intercambios, Mitos y correos cierre profesores recomendaciones", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-18", progress:0, recurrence:"semestral", notes:[], files:[] }
-  ]},
-
-  /* ---------------- VISITANTES ---------------- */
-  { id:"vi-1", processId:"visitantes", name:"Coordinación de seminarios incoming", defaultResponsible:["jd"], activities:[
-    { id:"vi-1-a1", name:"Actualizar información Seminarios", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-02", end:"2026-09-02", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"vi-2", processId:"visitantes", name:"Presentación de la Facultad a visitantes", defaultResponsible:["ag","jd"], activities:[
-    { id:"vi-2-a1", name:"Presentar la Facultad a delegaciones y profesores visitantes", responsible:["ag","jd"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:50, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- ESCUELA_VERANO ---------------- */
-  { id:"ev-1", processId:"escuela_verano", name:"Convocatoria EIV 2025", defaultResponsible:["jd"], activities:[
-    { id:"ev-1-a1", name:"Solicitar a Mercadeo Logo, Imagen y colores EIV 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-07-19", end:"2026-08-03", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a2", name:"Definición Guidelines 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-07-23", end:"2026-08-27", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a3", name:"Creación formulario convocatoria", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-06", end:"2026-08-21", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a4", name:"Solicitar a Mercadeo Banner mail EIV 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-10", end:"2026-08-21", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a5", name:"Definición con Mercadeo para imagen, logo y colores EIV 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-10", end:"2026-08-21", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a6", name:"Creación email convocatoria", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-20", end:"2026-08-24", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a7", name:"Revisión BD contactos para CALL", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-04", progress:100, recurrence:"semestral", notes:[], files:[] },
-    { id:"ev-1-a8", name:"Envío email convocatoria", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-10", end:"2026-09-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a9", name:"Consolidación propuestas enviadas", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-11", end:"2026-10-30", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a10", name:"Envío email recordatorio convocatoria 3 weeks left", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-09", end:"2026-10-09", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a11", name:"Envío email recordatorio convocatoria 2 weeks left", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-16", end:"2026-10-16", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a12", name:"Recordatorio última semana conv.", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-23", end:"2026-10-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a13", name:"Diligencar matriz selección cursos 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-20", end:"2026-10-30", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-1-a14", name:"Deadline convocatoria", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-30", end:"2026-10-30", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"ev-2", processId:"escuela_verano", name:"Comité selección cursos 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-2-a1", name:"Validar disponibilidad Decana y Vicedecana y coordinar comité", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-10", end:"2026-09-21", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a2", name:"Enviar al comité disponibilidad Decana y Vicedecana y coordinar", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-10", end:"2026-10-01", progress:80, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a3", name:"Envío matrices a miembros del Comité de selección", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-30", end:"2026-10-30", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a4", name:"Entrevista por parte de los directores de área", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-30", end:"2026-11-09", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ev-2-a5", name:"Comité de selección  2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-13", end:"2026-11-16", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a6", name:"Envío email con los resultados de selección y solicitando confirmación", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-19", end:"2026-11-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a7", name:"Envío acta comité selección", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-19", end:"2026-11-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a8", name:"Consolidación de documentos adicionales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-19", end:"2026-11-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-2-a9-mtrda3s5hrq", name:"Entrevista por parte de la ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-30", end:"2026-11-09", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"ev-3", processId:"escuela_verano", name:"Procesos Logísticos EIV 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-3-a1", name:"Creación Course Descriptions y Minisyllabus para  Página web (Mercadeo)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-26", end:"2026-12-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a2", name:"Vacaciones colectivas", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-12-10", end:"2026-12-30", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a3", name:"Mail 1: UASMs 2024 International Summer School (Enviar guidelines)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-01-07", end:"2027-01-07", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a4", name:"Envío syllabus completos a directores de área para recibir comentarios", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-01-16", end:"2027-01-16", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a5", name:"Consolidación y ajuste comentarios de los directores de área a los programas de los cursos", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-01-17", end:"2027-02-11", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a6", name:"Reuniones Contratación, viajes para definición de funciones, fechas clave, etc.", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-11", end:"2027-02-11", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a7", name:"Mail 2: Solicitud de video introductorio y confirmar itinerario de viaje", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-11", end:"2027-02-11", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a8", name:"Consolidación itinerarios de viaje y ajustes Syllabus completos", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-11", end:"2027-03-04", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a9", name:"Consolidación programas ajustados y videos", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-21", end:"2027-03-04", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a10", name:"Solicitud reserva de tiquetes aéreos (Aleja)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-04", end:"2027-03-04", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a11", name:"Reserva de alojamiento (Aleja)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-04", end:"2027-04-12", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a12", name:"Mail 3: Bibliography revision  + Materiales académicos", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-14", end:"2027-03-14", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a13", name:"Mail 4: Documentos para la contratación", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-22", end:"2027-03-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a14", name:"Consolidación documentos para la contratación", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-28", end:"2027-04-25", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a15", name:"Solicitud material promocional (Pantallas y empapelado)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-29", end:"2027-04-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a16", name:"Convocatoria monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-04-08", end:"2027-05-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a17", name:"Coordinar transporte según itinerario (Aleja)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a18", name:"Solicitar oficinas a profesores visitantes presenciales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a19", name:"Solicitar cartas de ingreso y pólizas médicas", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-10", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-3-a20-mtrda3sqh8k", name:"Identificar cursos sin profesor o sin inscritos y validar", responsible:["jd"], status:"completada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:100, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ev-3-a21-mtrda3sqaqf", name:"Realizar ejecución julio EIV", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"ev-4", processId:"escuela_verano", name:"Procesos CSA EIV 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-4-a1", name:"Envío syllabus a Laboratorio de Finanzas para revisión bibliográfica", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-01-29", end:"2027-02-15", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a2", name:"Solicitar activación y creación de cursos y nuevos profesores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-04", end:"2027-03-14", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a3", name:"Consolidación de los cupos solicitados por programa", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-14", end:"2027-04-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a4", name:"Soliciar salones según las franjas horarias de cada curso para la EIV", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-04-29", end:"2027-05-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a5", name:"Creación cursos en Banner", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-04-29", end:"2027-05-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a6", name:"Solicitud activación encuestas de evaluación del curso", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a7", name:"Solicitar unificación cursos", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a8", name:"Solicitar creación espacio en Bloque Neon para cursos EIV, y subir bibliografía", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a9", name:"Apoyo con inscripción y conflictos de horario", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-20", end:"2027-05-31", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a10", name:"Consolidación listas finales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-23", end:"2027-05-31", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-4-a11", name:"Solicictud habladores estudiantes presenciales, según listas finales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-23", end:"2027-05-24", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"ev-5", processId:"escuela_verano", name:"Pre EIV 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-5-a1", name:"Coordinar Introducción  profesores de cada bloque", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a2", name:"Coordinar almuerzo profesores presenciales de cada bloque", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a3", name:"Envío correo coordinando reunión con monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a4", name:"Inducción monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-09", end:"2027-05-09", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a5", name:"Mail 5: Pre-logistics (Presentación del monitor, activación cuenta Uniandes, aspectos académicos)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-09", end:"2027-05-09", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a6", name:"Definir los profesores que presentarán a los visitantes en el primer día de clase", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-24", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a7", name:"Mail 6: Final logistics, recogida en el aeropuerto B1", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-22", end:"2027-05-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a8", name:"Mail 6: Final logistics, recogida en el aeropuerto B2", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-31", end:"2027-05-31", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a9", name:"Mail 6: Final logistics, recogida en el aeropuerto B3", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-14", end:"2027-06-14", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a10", name:"Solicitar regalos para estudiantes extranjeros presenciales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-20", end:"2027-05-20", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a11", name:"Reunión con monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-20", end:"2027-05-24", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-5-a12", name:"Coordinar y solicitar a Mercadeo espacio para entrevistas a profesores y estudiantes presenciales", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-28", end:"2027-05-28", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"ev-6", processId:"escuela_verano", name:"EIV 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-6-a1", name:"Inducción estudiantes extranjeros B1", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-07", end:"2027-06-07", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-6-a2", name:"Bloque 1", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-07", end:"2027-06-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-6-a3", name:"Inducción estudiantes extranjeros B2", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-22", end:"2027-06-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-6-a4", name:"Bloque 2", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-22", end:"2027-07-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-6-a5", name:"Inducción estudiantes extranjeros B3", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-06", end:"2027-07-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-6-a6", name:"Bloque 3", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-06", end:"2027-07-16", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"ev-7", processId:"escuela_verano", name:"Post EIV 2026", defaultResponsible:["jd"], activities:[
-    { id:"ev-7-a1", name:"Mail 7: Survey and Final grades B1", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-17", end:"2027-06-17", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a2", name:"Mail 7: Survey and Final grades B2", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-02", end:"2027-07-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a3", name:"Mail 7: Survey and Final grades B3", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-15", end:"2027-07-15", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a4", name:"Correo programando reunión feedback monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-19", end:"2027-07-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a5", name:"Seguimiento a las notas en Banner", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-26", end:"2027-08-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a6", name:"Informe de cierre EIV 2026", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-19", end:"2027-08-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a7", name:"Mail 8: Notas en Banner", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-26", end:"2027-07-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a8", name:"Deadline publicación notas en Banner", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-08-05", end:"2027-08-05", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a9", name:"Mail 9: Pago honorarios", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-08-06", end:"2027-08-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a10", name:"Reunión feedback monitores", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-08-09", end:"2027-08-13", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a11", name:"Mail 10: Resultados evaluaciones de curso", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-08-20", end:"2027-08-20", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a12", name:"Coordinar reunión cierre unidades responsables (Viajes, contratos, GHDO, egresos, CSA, CSL)", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-08-31", end:"2027-09-18", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"ev-7-a13-mtrda3sqi3z", name:"Citar reu cierre EIV / unidades responsables", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"ev-7-a14-mtrda3sqq84", name:"Pendiente infografía resultados intercambio, mitos y correo cierre", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-20", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- SEMANAS_INTL ---------------- */
-  { id:"si-1", processId:"semanas_intl", name:"Semanas Internacionales - Logística", defaultResponsible:["jd"], activities:[
-    { id:"si-1-a1", name:"Validar que se a pensado desde la EPOS para las Semanas Internacionales y definir oferta 2027 - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-10", end:"2026-08-28", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a2", name:"Reunión oportunidades de mejora Semanas Internacionales, CSA, MBA y Sonia. - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-04", progress:50, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a3", name:"Construir propuesta económica semanas 2026 - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-09-14", progress:20, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a4", name:"Definición de las Semanas Internacionales 2026 - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-17", end:"2026-09-26", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a5", name:"Comité EPOS definición semanas - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-26", end:"2026-10-03", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a6", name:"Revisar y actualizar presentaciones de reuniones informativas - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-01", end:"2026-10-05", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a7", name:"Creación propuesta económica y presupuesto 2026 - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-01", end:"2026-10-05", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"si-1-a8", name:"Solicitud a Mercadeo flyer con información semanas Internacionales + primera sesión informativa, 1 semana para primer pago, y día del primer pago - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-05", end:"2026-10-05", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a9", name:"Validación propuestas económicas y costos con Ana María - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-08", end:"2026-10-18", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a10", name:"Definición costos de las semanas - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-18", end:"2026-10-24", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a11", name:"Confirmación con los partners - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-18", end:"2026-10-25", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a12", name:"Actualización final presentaciones Semanas Internacionales - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-15", end:"2026-10-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a13", name:"Envío correo a los programas info sesión informativa y fecha de primer pago, enviar correos a una hora específica - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-15", end:"2026-10-15", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a14", name:"Creación Objetos de costo 2026 - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-19", end:"2026-10-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a15", name:"Sesión informativa Semanas Internacionales  MBAs - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-23", end:"2026-10-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a16", name:"Sesión informativa Semanas Internacionales EPOS - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-10-24", end:"2026-10-24", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a17", name:"Deadline mercadeo Flyers - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-02", end:"2026-11-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a18", name:"Solicitud creación botones primer pago - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-01", end:"2026-11-01", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a19", name:"Seguimiento envío pieza reunión semanas internacionales, indicando fecha de apertura del botón de pago para la inscripción - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-06", end:"2026-11-06", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a20", name:"Correo día primer pago - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-13", end:"2026-11-13", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a21", name:"Apertura primer pago (10 a.m.) - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-13", end:"2026-11-13", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a22", name:"Estar pendiente de los primeros pagos y de la fecha deadline para no sobrepasar los cupos - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-11-13", end:"2026-12-07", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a23", name:"Deadline primer pago semanas Internacionales - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-12-07", end:"2026-12-07", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a24", name:"Vacaciones colectivas -", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-12-13", end:"2027-01-04", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a25", name:"Solicitud creación botones segundo pago - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-01-23", end:"2027-01-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a26", name:"Correos recordatorios segundo pago - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-01", end:"2027-02-01", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a27", name:"Proceso facturación Semanas - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-11", end:"2027-03-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a28", name:"Segundo Pago - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-08", end:"2027-03-08", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a29", name:"Compra y reserva de tiquetes aéreos profesores acompañantes - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-13", end:"2027-03-01", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a30", name:"Coordinar primera reunión con participantes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-13", end:"2027-02-15", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a31", name:"Reunión Babson - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-22", end:"2027-03-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a32", name:"Reunión KLU - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-22", end:"2027-03-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a33", name:"reunión FGV - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-22", end:"2027-03-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a34", name:"Reunión NOVA - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-02-22", end:"2027-03-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a35", name:"Coordinar reunión seguimiento con los partners - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-05", end:"2027-03-05", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a36", name:"Reunión Babson - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-11", end:"2027-03-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a37", name:"Reunión KLU - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-11", end:"2027-03-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a38", name:"reunión FGV - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-11", end:"2027-03-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a39", name:"Reunión NOVA - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-11", end:"2027-03-22", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a40", name:"Solicitud creación y activación cursos de las Semanas - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-25", end:"2027-03-25", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a41", name:"Solicitar mosaicos participantes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-03-25", end:"2027-03-25", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a42", name:"Valida Semana Internacional Madrid/USA empresa España", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-08-31", end:"2026-08-31", progress:100, recurrence:"anual", notes:[], files:[] },
-    { id:"si-1-a43-mtrda3sqyc6", name:"Revisar budget estimado Babson y NOVA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"si-1-a44-mtrda3sqrwr", name:"Revisar tema Mayra Tec Week Mercadeo", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"si-1-a45-mtrda3sq3gf", name:"Realizar ejecución julio semanas", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"si-2", processId:"semanas_intl", name:"Pre logistics Semanas", defaultResponsible:["jd"], activities:[
-    { id:"si-2-a1", name:"Correo seguimiento pasaportes escaneados y documentos requeridos de todos los participantes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-04-01", end:"2027-04-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a2", name:"Coordinar reuniones pre-logistics estudiantes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-04-15", end:"2027-04-19", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a3", name:"Solicitar pólizas estudiantiles Uniandes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-03", end:"2027-05-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a4", name:"Reunión Babson - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a5", name:"Reunión KLU - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a6", name:"reunión FGV - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a7", name:"Reunión Bocconi - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a8", name:"Coordinación reuniones pre-logistics partners - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-03", end:"2027-05-03", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a9", name:"Reunión Babson - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a10", name:"Reunión KLU - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a11", name:"reunión FGV - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a12", name:"Reunión Bocconi - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-06", end:"2027-05-10", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a13", name:"Matriculas del curso periodo 2026-13 - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-21", end:"2027-05-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-2-a14", name:"Consolidación listas finales - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-05-24", end:"2027-05-24", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-  { id:"si-3", processId:"semanas_intl", name:"Semanas Internacionales", defaultResponsible:["jd"], activities:[
-    { id:"si-3-a1", name:"KLU INTERNATIONAL WEEK", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-02", end:"2027-06-07", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-3-a2", name:"NOVA INTERNATIONAL WEEK", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-24", end:"2027-06-28", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-3-a3", name:"BABSON INTERNATIONAL WEEK", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-30", end:"2027-07-05", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-3-a4", name:"FGV INTERNATIONAL WEEK", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-06-28", end:"2027-07-02", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-3-a5-mtrda3sqw1x", name:"Actualizar seminarios", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-15", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-  { id:"si-4", processId:"semanas_intl", name:"Post Semanas", defaultResponsible:["jd"], activities:[
-    { id:"si-4-a1", name:"Consolidación información participantes - CSA", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-15", end:"2027-07-23", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-4-a2", name:"Realización de reportes financieros y demográficos - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-18", end:"2027-07-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-4-a3", name:"Validación evaluaciones de cursos - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-26", end:"2027-07-29", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-4-a4", name:"Coordinación reunión feedback Semanas Internacionales - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-15", end:"2027-07-15", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-4-a5", name:"Definición preguntas para profesores y ppt feedback semanas - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-25", end:"2027-07-26", progress:0, recurrence:"anual", notes:[], files:[] },
-    { id:"si-4-a6", name:"Reunión Feedback semanas internacionales - ORI", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2027-07-31", end:"2027-08-01", progress:0, recurrence:"anual", notes:[], files:[] }
-  ]},
-
-  /* ---------------- EVENTOS ---------------- */
-  { id:"ec-1", processId:"eventos", name:"Organización general de eventos y conferencias", defaultResponsible:["ag","jd","ad"], activities:[
-    { id:"ec-1-a1", name:"Organizar eventos y conferencias internacionales del año", responsible:["ag","jd","ad"], status:"ejecucion", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- IAB ---------------- */
-  { id:"iab-1", processId:"iab", name:"Gestión del International Advisory Board", defaultResponsible:["ag"], activities:[
-    { id:"iab-1-a1", name:"Coordinar la sesión anual del International Advisory Board", responsible:["ag"], status:"preparacion", priority:"alta", start:"2026-10-06", end:"2026-10-24", progress:10, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- PRME ---------------- */
-  { id:"pr-1", processId:"prme", name:"Elaboración de informes PRME", defaultResponsible:[], activities:[
-    { id:"pr-1-a1", name:"Elaborar y presentar el informe de progreso PRME", responsible:["cd"], status:"ejecucion", priority:"alta", start:"2026-09-01", end:"2026-09-30", progress:40, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- KPIS ---------------- */
-  { id:"kp-1", processId:"kpis", name:"Consolidación de KPIs y estadísticas", defaultResponsible:["jd"], activities:[
-    { id:"kp-1-a1", name:"Consolidar KPIs y estadísticas de internacionalización", responsible:["jd"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:65, recurrence:"ninguna", notes:[], files:[] },
-    { id:"kp-1-a2-mtrda3se7yt", name:"Consolidar KPIs y estadísticas de las diferentes unidades", responsible:["jd"], status:"seguimiento", priority:"media", start:"2026-09-07", end:"2026-10-15", progress:0, recurrence:"semestral", notes:[], files:[] },
-    { id:"kp-1-a3-mtrda3sqsgi", name:"Enviar info CNA Mercadeo y Movilidad (Mayra/Nancy) validar", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-10", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"kp-1-a4-mtrda3sqmcr", name:"Enviar info Bolsa Anto", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-10", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"kp-1-a5-mtrda3sq5yp", name:"Proyecto Eder", responsible:["jd"], status:"no-iniciada", priority:"media", start:"2026-09-01", end:"2026-09-30", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"kp-1-a6-mtrda3sq7bz", name:"Preparar xlsx, html y ppt para reunión Ximena", responsible:["jd"], status:"no-iniciada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:0, recurrence:"ninguna", notes:[], files:[] },
-    { id:"kp-1-a7-mtrda3sqjkl", name:"Terminar Internacionalización y comité EIV", responsible:["jd"], status:"no-iniciada", priority:"alta", start:"2026-09-01", end:"2026-09-07", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- POSICIONAMIENTO ---------------- */
-  { id:"pp-1", processId:"posicionamiento", name:"Estrategia de posicionamiento y promoción internacional", defaultResponsible:["jd","ad","sf"], activities:[
-    { id:"pp-1-a1", name:"Ejecutar estrategia de posicionamiento y promoción internacional", responsible:["jd","ad","sf"], status:"ejecucion", priority:"alta", start:"2026-03-02", end:"2026-12-18", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- RELACIONAMIENTO ---------------- */
-  { id:"ru-1", processId:"relacionamiento", name:"Relacionamiento con áreas y unidades de la Universidad", defaultResponsible:["jd","ad"], activities:[
-    { id:"ru-1-a1", name:"Articular actividades internacionales con otras unidades de la Universidad", responsible:["jd","ad"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- BECAS ---------------- */
-  { id:"cb-1", processId:"becas", name:"Gestión de competencias y becas internacionales", defaultResponsible:["ad","sf","jd"], activities:[
-    { id:"cb-1-a1", name:"Gestionar postulaciones a competencias y becas internacionales", responsible:["ad","sf","jd"], status:"ejecucion", priority:"alta", start:"2026-02-02", end:"2026-11-27", progress:40, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- WEB ---------------- */
-  { id:"pw-1", processId:"web", name:"Actualización y gestión de la página web de internacionalización", defaultResponsible:["jd","ad","sf","ag"], activities:[
-    { id:"pw-1-a1", name:"Actualizar y mantener la página web de internacionalización de la Facultad", responsible:["jd","ad","sf","ag"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:0, recurrence:"ninguna", notes:[], files:[] }
-  ]},
-
-  /* ---------------- Subtemas nuevos (vienen del Excel; sus tareas llegan por sincronización) ---------------- */
-  { id:"ar-9", processId:"acred_rank", name:"Informe EQUIS 2027 (mid term report)", defaultResponsible:["cd", "jd"], activities:[] },
-  { id:"ar-10", processId:"acred_rank", name:"AMBA (best practices)", defaultResponsible:["cd"], activities:[] },
-  { id:"ar-11", processId:"acred_rank", name:"Estrategia de Facultad (investigación, teoría de cambios, industria y futuro del empleo)", defaultResponsible:["cd"], activities:[] },
-  { id:"de-2", processId:"dobles_epos", name:"GLOCAL: procesos académicos y administrativos", defaultResponsible:["ad", "cd", "sf"], activities:[] },
-  { id:"de-3", processId:"dobles_epos", name:"KLU: programa y requisitos", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"de-4", processId:"dobles_epos", name:"Evaluación de programas y convenios a futuro (YALE, IE NYC, China, UK)", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"de-5", processId:"dobles_epos", name:"UPF, Tulane y otras gestiones DT EPOS", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"ac-1", processId:"acred", name:"Gestión y logística acreditaciones", defaultResponsible:["jd"], activities:[] },
+  { id:"ac-2", processId:"acred", name:"AACSB", defaultResponsible:["cd", "jd"], activities:[] },
+  { id:"ac-3", processId:"acred", name:"EQUIS", defaultResponsible:["cd", "jd"], activities:[] },
+  { id:"ac-4", processId:"acred", name:"AMBA", defaultResponsible:["cd"], activities:[] },
+  { id:"ac-5", processId:"acred", name:"Estrategia de facultad", defaultResponsible:["cd"], activities:[] },
+  { id:"ac-6", processId:"acred", name:"Gestión de datos para acreditaciones (KPIs y Qualifications)", defaultResponsible:["jd"], activities:[] },
+  { id:"ac-7", processId:"acred", name:"Informes PRME", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"rk-1", processId:"rankings", name:"Manejo de datos", defaultResponsible:["jd"], activities:[] },
+  { id:"rk-2", processId:"rankings", name:"Desarrollo y mantenimiento de dashboards estratégicos", defaultResponsible:["jd"], activities:[] },
+  { id:"rk-3", processId:"rankings", name:"Gestión de bases de datos", defaultResponsible:["ag", "jd"], activities:[] },
+  { id:"rk-4", processId:"rankings", name:"Benchmark de rankings internacionales", defaultResponsible:["jd"], activities:[] },
+  { id:"rk-5", processId:"rankings", name:"Mantenimiento BaseRoom institucional", defaultResponsible:["jd"], activities:[] },
+  { id:"de-2", processId:"dobles_epos", name:"GLOCAL", defaultResponsible:["ad", "cd", "sf"], activities:[] },
+  { id:"de-3", processId:"dobles_epos", name:"KLU", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"de-6", processId:"dobles_epos", name:"UPF", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"de-7", processId:"dobles_epos", name:"Tulane", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"de-1", processId:"dobles_epos", name:"Otras gestiones DT EPOS", defaultResponsible:["ad"], activities:[] },
+  { id:"de-4", processId:"dobles_epos", name:"Evaluación de programas y convenios a futuro", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"dp-1", processId:"dobles_pre", name:"Gestión de dobles titulación de pregrado", defaultResponsible:["ad", "sf"], activities:[] },
   { id:"dp-2", processId:"dobles_pre", name:"Acuerdos y seguimiento por institución (NEOMA, TBS, FGV)", defaultResponsible:["ad", "sf"], activities:[] },
   { id:"dp-3", processId:"dobles_pre", name:"Investigación sobre dobles titulaciones", defaultResponsible:["sf"], activities:[] },
   { id:"dp-4", processId:"dobles_pre", name:"Journey maps y gestión transversal de DT (KPIs, procesos, mercadeo, calendario OIA)", defaultResponsible:["sf"], activities:[] },
+  { id:"ce-1", processId:"convenios_esp", name:"Convenios CEMS", defaultResponsible:["ad"], activities:[] },
+  { id:"ce-2", processId:"convenios_esp", name:"Renovación de convenios", defaultResponsible:["ad"], activities:[] },
+  { id:"ce-3", processId:"convenios_esp", name:"Estrategia de convenios", defaultResponsible:["ad"], activities:[] },
+  { id:"ce-4", processId:"convenios_esp", name:"Depuración de convenios", defaultResponsible:["ad"], activities:[] },
   { id:"ce-5", processId:"convenios_esp", name:"Nuevos convenios y alianzas (Austral, Hanken)", defaultResponsible:["ad"], activities:[] },
   { id:"ce-6", processId:"convenios_esp", name:"Comité de intercambios y políticas", defaultResponsible:["ad", "jd"], activities:[] },
   { id:"ce-7", processId:"convenios_esp", name:"Comunicación y matriz comparativa de convenios", defaultResponsible:["ad"], activities:[] },
+  { id:"oi-1", processId:"oport_intl", name:"Parrilla de redes (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-2", processId:"oport_intl", name:"Versión final del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-3", processId:"oport_intl", name:"Reuniones periódicas informativas (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-4", processId:"oport_intl", name:"Semana Internacional China (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-5", processId:"oport_intl", name:"Consejerías grupales e individuales (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-6", processId:"oport_intl", name:"Infografía de resultados de intercambio (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-7", processId:"oport_intl", name:"Reuniones generales EPOS", defaultResponsible:["jd", "ad"], activities:[] },
+  { id:"oi-8", processId:"oport_intl", name:"Reuniones específicas de actividades EPOS", defaultResponsible:["jd", "ad"], activities:[] },
+  { id:"oi-9", processId:"oport_intl", name:"Intercambios PRE", defaultResponsible:["jd"], activities:[] },
   { id:"oi-10", processId:"oport_intl", name:"Handbooks de estudiantes (PRE)", defaultResponsible:["sf", "ad"], activities:[] },
   { id:"oi-11", processId:"oport_intl", name:"Prácticas internacionales (PRE)", defaultResponsible:["sf"], activities:[] },
   { id:"oi-12", processId:"oport_intl", name:"Automatización del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[] },
   { id:"oi-13", processId:"oport_intl", name:"Otras líneas de actividades PRE (por definir)", defaultResponsible:["sf"], activities:[] },
+  { id:"vi-1", processId:"visitantes", name:"Coordinación de seminarios incoming", defaultResponsible:["jd"], activities:[] },
+  { id:"vi-2", processId:"visitantes", name:"Presentación de la Facultad a visitantes", defaultResponsible:["ag", "jd"], activities:[] },
   { id:"vi-3", processId:"visitantes", name:"Ingreso de visitantes a Colombia y post-docs", defaultResponsible:["ag"], activities:[] },
   { id:"vi-4", processId:"visitantes", name:"Fulbright", defaultResponsible:["ag"], activities:[] },
+  { id:"ev-1", processId:"escuela_verano", name:"Convocatoria EIV 2025", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-2", processId:"escuela_verano", name:"Comité selección cursos 2026", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-3", processId:"escuela_verano", name:"Procesos Logísticos EIV 2026", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-4", processId:"escuela_verano", name:"Procesos CSA EIV 2026", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-5", processId:"escuela_verano", name:"Pre EIV 2026", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-6", processId:"escuela_verano", name:"EIV 2026", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-7", processId:"escuela_verano", name:"Post EIV 2026", defaultResponsible:["jd"], activities:[] },
   { id:"ev-8", processId:"escuela_verano", name:"EIV 2027: imagen, guidelines y call", defaultResponsible:["jd", "cd"], activities:[] },
   { id:"ev-9", processId:"escuela_verano", name:"EIV 2027: comité de selección", defaultResponsible:["jd"], activities:[] },
   { id:"ev-10", processId:"escuela_verano", name:"ICETEX: reembolsos a profesores EIV", defaultResponsible:["jd"], activities:[] },
+  { id:"si-1", processId:"semanas_intl", name:"Semanas Internacionales - Logística", defaultResponsible:["jd"], activities:[] },
+  { id:"si-2", processId:"semanas_intl", name:"Pre logistics Semanas", defaultResponsible:["jd"], activities:[] },
+  { id:"si-3", processId:"semanas_intl", name:"Semanas Internacionales", defaultResponsible:["jd"], activities:[] },
+  { id:"si-4", processId:"semanas_intl", name:"Post Semanas", defaultResponsible:["jd"], activities:[] },
   { id:"si-5", processId:"semanas_intl", name:"Testimoniales y acompañamiento de profesores", defaultResponsible:["ad", "jd"], activities:[] },
+  { id:"ec-1", processId:"eventos", name:"Organización general de eventos y conferencias", defaultResponsible:["ag", "jd", "ad"], activities:[] },
   { id:"ec-2", processId:"eventos", name:"Ferias de oportunidades (USA, universidades portuguesas)", defaultResponsible:["ad"], activities:[] },
   { id:"ec-3", processId:"eventos", name:"Conferencias (ISFC 2027, Sustainable Finance)", defaultResponsible:["ag", "cd"], activities:[] },
+  { id:"iab-1", processId:"iab", name:"Gestión del International Advisory Board", defaultResponsible:["ag"], activities:[] },
+  { id:"pp-1", processId:"posicionamiento", name:"Estrategia de posicionamiento y promoción internacional", defaultResponsible:["jd", "ad", "sf"], activities:[] },
   { id:"pp-2", processId:"posicionamiento", name:"Newsletter internacional", defaultResponsible:["ad", "cd"], activities:[] },
   { id:"pp-3", processId:"posicionamiento", name:"Parrillas de contenido (CONSE y mercadeo)", defaultResponsible:["cd"], activities:[] },
   { id:"pp-4", processId:"posicionamiento", name:"Difusión de oportunidades internacionales (posgrado / pregrado)", defaultResponsible:["cd"], activities:[] },
   { id:"pp-5", processId:"posicionamiento", name:"Documentación en plataformas y PPT de la Facultad", defaultResponsible:["cd"], activities:[] },
+  { id:"pp-6", processId:"posicionamiento", name:"Página web de internacionalización", defaultResponsible:["jd", "ad", "sf", "ag"], activities:[] },
+  { id:"ru-1", processId:"relacionamiento", name:"Relacionamiento con áreas y unidades de la Universidad", defaultResponsible:["jd", "ad"], activities:[] },
   { id:"ru-2", processId:"relacionamiento", name:"Apoyo a estudiantes: seguridad y riesgos", defaultResponsible:["cd", "ad"], activities:[] },
   { id:"ru-3", processId:"relacionamiento", name:"Enlaces de internacionalización (Brasil, África, Portugal)", defaultResponsible:["cd", "ad"], activities:[] },
   { id:"ru-4", processId:"relacionamiento", name:"Estadísticas de movilidad", defaultResponsible:["cd", "ad"], activities:[] },
   { id:"ru-5", processId:"relacionamiento", name:"Jurídica", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"cb-1", processId:"becas", name:"Gestión de competencias y becas internacionales", defaultResponsible:["ad", "sf", "jd"], activities:[] },
   { id:"cb-2", processId:"becas", name:"Competencias internacionales de casos (Cornell, GNAM, GBSN)", defaultResponsible:["ad"], activities:[] },
   { id:"cb-3", processId:"becas", name:"ERASMUS (convocatoria y socios)", defaultResponsible:["ad", "sf"], activities:[] },
   { id:"cb-4", processId:"becas", name:"JIBS", defaultResponsible:["ad", "sf"], activities:[] },
@@ -2265,8 +2018,9 @@ const SUBTHEMES = [
   { id:"ot-2", processId:"otros", name:"Inducción de profesores nuevos", defaultResponsible:["ad", "cd"], activities:[] },
   { id:"ot-3", processId:"otros", name:"Proyectos especiales y alianzas", defaultResponsible:["cd"], activities:[] },
   { id:"ot-4", processId:"otros", name:"Apoyo transversal (logística y piezas gráficas)", defaultResponsible:["ag"], activities:[] },
+  { id:"ot-5", processId:"otros", name:"Handbooks y documentos oficiales", defaultResponsible:["cd"], activities:[] }
 ];
-// Cada subtema queda junto a los de su gran tema (orden estable: no cambia el orden existente)
+// Cada subtema queda junto a los de su gran tema (orden estable)
 SUBTHEMES.sort((a,b)=> PROCESSES.findIndex(p=>p.id===a.processId) - PROCESSES.findIndex(p=>p.id===b.processId));
 
 /* ================================================================
@@ -2294,7 +2048,7 @@ const MONTHS_FULL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","A
 //    > Quién tiene acceso "Cualquier usuario".
 // 3) Pega aquí la URL que termina en /exec, y la MISMA clave que pusiste en API_TOKEN del Code.gs.
 const SHEETS_API_URL = "https://script.google.com/a/macros/uniandes.edu.co/s/AKfycbwJ3ZoeAKpZKCoIFTt0lOBsqDyk8I9YUvCYggNcrhEpZT8JUVEqELW3POCnclSZs1iJ6g/exec";
-const API_TOKEN = "ORI-pendientes-ORI-12345";
+const API_TOKEN = "ORI-d6d1f5b6a698a6a4013dbeef69915b52";
 const SYNC_POLL_MS = 20000; // frecuencia de refresco automático (20s)
 const SYNC_TIMEOUT_MS = 20000; // tiempo máximo de espera por petición antes de reintentar
 const SYNC_RETRIES = 3; // intentos por petición (con esperas de 1s, 2s, 4s)
@@ -2350,6 +2104,20 @@ function daysBetween(a,b){ return Math.round((b-a)/86400000); }
 function initials(name){ return name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase(); }
 function processOf(id){ return PROCESSES.find(p=>p.id===id); }
 function subthemeOf(id){ return SUBTHEMES.find(s=>s.id===id); }
+const escHtml_ = v => String(v==null?"":v).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// Una tarea sin terminar cuya fecha fin ya pasó está vencida, aunque en la hoja nadie haya cambiado su estado.
+function isOverdue(a){ return a.status!=="completada" && (Number(a.progress)||0)<100 && daysBetween(TODAY, parseDate(a.end))<0; }
+function isAtRisk(a){ return a.status==="riesgo" || a.status==="vencida" || isOverdue(a); }
+// Aviso corto en pantalla (errores de guardado, confirmaciones)
+let _toastTimer = null;
+function showToast(msg, ms){
+  let t = document.getElementById("appToast");
+  if(!t){ t = document.createElement("div"); t.id = "appToast"; t.className = "app-toast"; t.setAttribute("role","status"); document.body.appendChild(t); }
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(()=> t.classList.remove("show"), ms || 6000);
+}
 function personOf(id){ return TEAM[id] || {name:id,color:"#999",role:""}; }
 function uniq(arr){ return [...new Set(arr)]; }
 
@@ -2430,6 +2198,7 @@ async function withRetries(fn, tries){
     try{ return await fn(); }
     catch(err){
       lastErr = err;
+      if(err && err.definitive) break;   // la hoja rechazó el cambio a propósito: reintentar no sirve
       if(i < (tries||SYNC_RETRIES)-1) await new Promise(r=> setTimeout(r, 1000 * Math.pow(2,i)));
     }
   }
@@ -2472,35 +2241,88 @@ function captureSeenNotes(){
 }
 window.addEventListener("pagehide", ()=>{ if(state.dataLoaded) captureSeenNotes(); });
 
-/* ---- Si la hoja trae un subtema o gran tema que la app no conoce, se crea ---- */
-function ensureStructureFromSheet(activities){
-  let created = false;
-  const plain = s => String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+/* ---- Estructura: la hoja manda también en los grandes temas y subtemas ----
+   El registro "Subtemas válidos" del Excel trae, en orden, cada subtema con su gran tema.
+   Se crean los que falten, se renombran los que cambiaron y se quitan los que ya no existen (si no tienen tareas). */
+function refreshProcessFilterOptions(){
+  const pSel = byId("fProcess");
+  if(!pSel) return;
+  pSel.innerHTML = "";
+  const all = document.createElement("option");
+  all.value = "all"; all.textContent = `Todos (${PROCESSES.length})`;
+  pSel.appendChild(all);
+  PROCESSES.forEach(p=>{
+    const o = document.createElement("option"); o.value = p.id; o.textContent = p.name; pSel.appendChild(o);
+  });
+  pSel.value = state.filters.process;
+}
+function syncStructureFromSheet(structure, activities){
+  const plainS = v => String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+  const hasRegistry = structure.length > 0;
+  const findProc = (procId, gname)=> (procId && PROCESSES.find(p=>p.id===procId)) || PROCESSES.find(p=> plainS(p.name)===plainS(gname));
+  const ensureProc = (procId, gname)=>{
+    let p = findProc(procId, gname);
+    if(!p){
+      p = { id: procId || slugId("proc", gname), name: gname, color: NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length], desc: "" };
+      PROCESSES.push(p);
+    } else if(gname && p.name !== gname){
+      p.name = gname;                                  // se renombró en la hoja
+    }
+    return p;
+  };
+  const inRegistry = new Set(), procOrder = [], subOrder = {};
+  structure.forEach((it, i)=>{
+    const gname = String(it.granTema||"").trim() || "Otros";
+    const p = ensureProc(String(it.procId||"").trim(), gname);
+    if(procOrder.indexOf(p.id) === -1) procOrder.push(p.id);
+    const sname = String(it.subtema||"").trim() || it.subthemeId;
+    let sub = subthemeOf(it.subthemeId);
+    if(!sub){
+      sub = { id:it.subthemeId, processId:p.id, name:sname, defaultResponsible:[], activities:[] };
+      SUBTHEMES.push(sub);
+    } else {
+      if(sub.name !== sname) sub.name = sname;
+      if(sub.processId !== p.id) sub.processId = p.id;
+    }
+    inRegistry.add(sub.id); subOrder[sub.id] = i;
+  });
+  // Tareas cuyo subtema no está en el registro (filas escritas a mano): se crea igual
   activities.forEach(a=>{
     if(!a.subthemeId || subthemeOf(a.subthemeId)) return;
-    const gname = String(a.granTema||"").trim() || "Otros";
-    let proc = PROCESSES.find(p=> plain(p.name)===plain(gname));
-    if(!proc){
-      proc = { id: slugId("proc", gname), name: gname, color: NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length], desc: "" };
-      PROCESSES.push(proc);
-    }
-    SUBTHEMES.push({ id:a.subthemeId, processId:proc.id, name:String(a.subtema||"").trim() || a.subthemeId, defaultResponsible:[], activities:[] });
-    created = true;
+    const p = ensureProc("", String(a.granTema||"").trim() || "Otros");
+    SUBTHEMES.push({ id:a.subthemeId, processId:p.id, name:String(a.subtema||"").trim() || a.subthemeId, defaultResponsible:[], activities:[] });
   });
-  if(created){
-    SUBTHEMES.sort((x,y)=> PROCESSES.findIndex(p=>p.id===x.processId) - PROCESSES.findIndex(p=>p.id===y.processId));
-    const pSel = byId("fProcess");
-    if(pSel){
-      pSel.querySelectorAll("option:not([value=all])").forEach(o=>o.remove());
-      PROCESSES.forEach(p=>{ const o=document.createElement("option"); o.value=p.id; o.textContent=p.name; pSel.appendChild(o); });
-      pSel.value = state.filters.process;
+  if(hasRegistry){
+    const withTasks = new Set(activities.map(a=>a.subthemeId));
+    for(let i=SUBTHEMES.length-1; i>=0; i--){
+      if(!inRegistry.has(SUBTHEMES[i].id) && !withTasks.has(SUBTHEMES[i].id)) SUBTHEMES.splice(i,1);
     }
+    for(let i=PROCESSES.length-1; i>=0; i--){
+      if(!SUBTHEMES.some(sb=> sb.processId===PROCESSES[i].id)) PROCESSES.splice(i,1);
+    }
+    PROCESSES.sort((x,y)=>{
+      const ix = procOrder.indexOf(x.id), iy = procOrder.indexOf(y.id);
+      return (ix<0?999:ix) - (iy<0?999:iy);
+    });
   }
+  SUBTHEMES.sort((x,y)=>{
+    const pd = PROCESSES.findIndex(p=>p.id===x.processId) - PROCESSES.findIndex(p=>p.id===y.processId);
+    if(pd) return pd;
+    return (subOrder[x.id]===undefined?999:subOrder[x.id]) - (subOrder[y.id]===undefined?999:subOrder[y.id]);
+  });
+  // Si la pantalla apuntaba a algo que ya no existe, se vuelve al panel general
+  if(state.selectedProcess && !processOf(state.selectedProcess)){
+    state.selectedProcess = null;
+    if(state.view === "processDetail") state.view = "dashboard";
+    if(typeof setActiveNav === "function") setActiveNav();
+  }
+  if(state.filters.process !== "all" && !processOf(state.filters.process)) state.filters.process = "all";
+  refreshProcessFilterOptions();
 }
 
 function applySheetData(data){
   const seenStore = captureSeenNotes();
-  ensureStructureFromSheet(data.activities||[]);
+  syncStructureFromSheet(data.structure||[], data.activities||[]);
   // Agrupar notas por tarea
   const notesByAct = {};
   (data.notes||[]).forEach(n=>{
@@ -2539,6 +2361,7 @@ function applySheetData(data){
 async function syncFromSheet(silent){
   if(!SHEETS_API_URL) return;
   if(state.syncInFlight) return;          // evita peticiones encimadas
+  if(state.pendingWrites > 0) return;     // hay cambios en camino a la hoja: no los pisamos con datos viejos
   state.syncInFlight = true;
   if(!silent || !state.dataLoaded) setSyncStatus("connecting");
   try{
@@ -2555,6 +2378,7 @@ async function syncFromSheet(silent){
     if(state.detailOpenFor){
       const [sId,aId] = state.detailOpenFor.split("|");
       if(findActivity(sId,aId)) openDetail(sId, aId, true);
+      else closeDetail();
     }
   }catch(err){
     state.syncFails++;
@@ -2571,6 +2395,9 @@ async function syncFromSheet(silent){
 
 async function postToSheet(payload){
   if(!SHEETS_API_URL) return { ok:true, local:true };
+  // Se envía quién hace el cambio para que quede en la hoja "Historial"
+  payload = Object.assign({ by: state.viewingAs || "" }, payload);
+  state.pendingWrites = (state.pendingWrites||0) + 1;
   try{
     const data = await withRetries(async ()=>{
       const res = await fetchWithTimeout(sheetUrl(), {
@@ -2581,7 +2408,11 @@ async function postToSheet(payload){
       });
       if(!res.ok) throw new Error("HTTP " + res.status);
       const d = await res.json();
-      if(!d.ok) throw new Error(d.error||"Error al guardar");
+      if(!d.ok){
+        const e = new Error(String(d.error||"Error al guardar").replace(/^Error:\s*/,""));
+        e.definitive = true;
+        throw e;
+      }
       return d;
     });
     state.syncFails = 0;
@@ -2589,10 +2420,16 @@ async function postToSheet(payload){
     setSyncStatus("ok");
     return data;
   }catch(err){
-    state.syncFails++;
-    if(state.syncFails >= SYNC_FAILS_BEFORE_ERROR) setSyncStatus("error");
+    if(!(err && err.definitive)){
+      state.syncFails++;
+      if(state.syncFails >= SYNC_FAILS_BEFORE_ERROR) setSyncStatus("error");
+    }
     console.warn("Post error:", err);
+    showToast("No se pudo guardar el cambio en la hoja de Google: " + (err && err.message ? err.message : err) + ". La pantalla se restablece con lo que hay en la hoja.", 9000);
+    setTimeout(()=> syncFromSheet(true), 400);   // vuelve a mostrar lo que realmente quedó en la hoja
     return { ok:false, error:String(err) };
+  } finally {
+    state.pendingWrites = Math.max(0, (state.pendingWrites||1) - 1);
   }
 }
 
@@ -2686,7 +2523,7 @@ function renderProcessNav(){
     const items = flat.filter(a=>a.processId===p.id);
     const count = items.length;
     const done = items.filter(a=>a.status==="completada").length;
-    const risk = items.filter(a=>a.status==="riesgo"||a.status==="vencida").length;
+    const risk = items.filter(isAtRisk).length;
     const active = state.view==="processDetail" && state.selectedProcess===p.id;
     const unread = state.viewingAs ? items.reduce((s,a)=>s+countUnreadNotes(a.notes,state.viewingAs),0) : 0;
     return `<div class="nav-item ${active?'active':''}" data-process-jump="${p.id}" role="button" tabindex="0" title="${p.name}" style="justify-content:space-between;">
@@ -2702,6 +2539,8 @@ function renderProcessNav(){
       </span>
     </div>`;
   }).join("") + addProcRowHtml;
+  const cntBadge = byId("processCountBadge");
+  if(cntBadge) cntBadge.textContent = PROCESSES.length;
   wrap.style.display = state.sidebarProcessesOpen ? "block" : "none";
   byId("sidebarProcessesToggle").querySelector(".nav-label-chevron").classList.toggle("open", state.sidebarProcessesOpen);
   wrap.querySelectorAll("[data-process-jump]").forEach(el=>{
@@ -2735,6 +2574,11 @@ function renderProcessNav(){
       const id = slugId("proc", val);
       const color = NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length];
       PROCESSES.push({ id, name:val, desc:"", color });
+      // Un gran tema nuevo nace con un subtema "General" para que exista también en la hoja
+      const subId = slugId("sub", "general_" + val);
+      const defResp = state.viewingAs && state.viewingAs!=="cd" ? [state.viewingAs] : ["cd"];
+      SUBTHEMES.push({ id:subId, processId:id, name:"General", defaultResponsible:defResp, activities:[] });
+      postToSheet({ action:"addSubtheme", subtheme:{ id:subId, granTema:val, name:"General", procId:id } });
       state.addingProc = false;
       state.selectedProcess = id;
       state.view = "processDetail";
@@ -2756,10 +2600,7 @@ function populateFilterOptions(){
   Object.entries(TEAM).forEach(([id,p])=>{
     const o=document.createElement("option"); o.value=id; o.textContent=p.name; rSel.appendChild(o);
   });
-  const pSel = byId("fProcess");
-  PROCESSES.forEach(p=>{
-    const o=document.createElement("option"); o.value=p.id; o.textContent=p.name; pSel.appendChild(o);
-  });
+  refreshProcessFilterOptions();
   const sSel = byId("fStatus");
   Object.entries(STATUS_LABELS).forEach(([k,v])=>{
     const o=document.createElement("option"); o.value=k; o.textContent=v; sSel.appendChild(o);
@@ -2858,27 +2699,26 @@ function closePersonModal(){
 
 function openPersonTasks(personId){
   const p = personOf(personId);
-  const tasks = flattenActivities().filter(a=>{
-    if(!a.responsible.includes(personId)) return false;
-    // Se excluye por estado Y por avance: una tarea al 100% no es una alerta pendiente,
-    // aunque por algún desajuste de datos su estado todavía diga otra cosa.
-    if(a.status==="completada" || a.progress>=100) return false;
-    return daysBetween(TODAY, parseDate(a.end)) <= 15; // solo alertas: vencidas o a ≤15 días
-  });
-  tasks.sort((a,b)=> parseDate(a.end)-parseDate(b.end));
+  // Mismo criterio que el círculo de la persona en el panel: tareas del alcance actual que aún no llegan al 100%
+  const isAnnual = state.dashboardScope==="annual";
+  const scopeList = isAnnual ? filteredActivities() : rollingWindowActivities();
+  const pending = scopeList.filter(a=> a.responsible.includes(personId) && a.progress<100 && a.status!=="completada");
 
-  const rowsHtml = tasks.length ? tasks.map(t=>`
-    <div class="ptask-row" data-open="${t.subthemeId}|${t.id}">
-      <div class="ptask-main">
-        <div class="ptask-name">${t.name}</div>
-        <div class="ptask-meta">${t.process.name} · ${t.subthemeName}</div>
-      </div>
-      ${priorityTag(t.priority)}
-      ${statusTag(t.status)}
-      <div class="ptask-dates">${fmtShort(t.start)} → ${fmtShort(t.end)}</div>
-      ${progressBadge(t.progress,'sm')}
-    </div>`).join("") : `<div class="dm-empty">${p.name} no tiene alertas de vencimiento por ahora.</div>`;
+  const perProc = new Map();
+  pending.forEach(t=> perProc.set(t.processId, (perProc.get(t.processId)||0) + 1));
+  const rows = PROCESSES.filter(pr=> perProc.has(pr.id))
+    .map(pr=>({ pr, n: perProc.get(pr.id) }))
+    .sort((x,y)=> y.n - x.n || PROCESSES.indexOf(x.pr) - PROCESSES.indexOf(y.pr));
 
+  const rowsHtml = rows.length ? rows.map(({pr,n})=>`
+    <div class="pgt-row">
+      <span class="pgt-dot" style="background:${pr.color};"></span>
+      <div class="pgt-name">${escHtml_(pr.name)}</div>
+      <div class="pgt-count"><b>${n}</b> tarea${n===1?'':'s'} pendiente${n===1?'':'s'}</div>
+    </div>`).join("") : `<div class="dm-empty">${escHtml_(p.name)} no tiene tareas pendientes por ahora.</div>`;
+
+  const nT = pending.length, nG = rows.length;
+  const scopeTxt = isAnnual ? "Vista anual · todas las tareas" : "Vista mensual · 30 días atrás y adelante";
   byId("personModal").innerHTML = `
     <div class="dm-head">
       <div style="display:flex;align-items:center;gap:12px;">
@@ -2888,15 +2728,12 @@ function openPersonTasks(personId){
       <button class="dm-close" id="pmClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="pm-body">
-      <div class="pm-subtitle">${tasks.length} tarea${tasks.length===1?'':'s'} con alerta de vencimiento (vencidas o a ≤15 días)</div>
+      <div class="pm-subtitle">${nT} tarea${nT===1?'':'s'} pendiente${nT===1?'':'s'} (menos del 100%) en ${nG} ${nG===1?'gran tema':'grandes temas'} · ${scopeTxt}</div>
       ${rowsHtml}
     </div>
   `;
   showPersonModal();
   byId("pmClose").addEventListener("click", closePersonModal);
-  byId("personModal").querySelectorAll("[data-open]").forEach(el=>{
-    el.addEventListener("click", ()=>{ const [sId,aId]=el.dataset.open.split("|"); closePersonModal(); openDetail(sId,aId); });
-  });
 }
 
 /* ================================================================
@@ -3075,7 +2912,7 @@ function buildCoverSpiderSVG(){
 function computeKPIs(list){
   const total = list.length;
   const done = list.filter(a=>a.status==="completada").length;
-  const risk = list.filter(a=>a.status==="riesgo"||a.status==="vencida").length;
+  const risk = list.filter(isAtRisk).length;
   const dueSoon = list.filter(a=>{
     if(a.status==="completada") return false;
     const d = daysBetween(TODAY, parseDate(a.end));
@@ -3183,7 +3020,7 @@ function renderDashboard(){
 
     <div class="dash-row" style="grid-template-columns:1fr 1fr;">
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">Carga por responsable</div><div class="panel-sub">Solo tareas pendientes (sin llegar al 100%) · clic en una persona para verlas</div></div>
+        <div class="panel-head"><div class="panel-title">Carga por responsable</div><div class="panel-sub">Tareas pendientes (sin llegar al 100%) · clic en una persona para ver en qué grandes temas trabaja</div></div>
         ${spiderHtml}
       </div>
       <div class="panel">
@@ -3550,7 +3387,7 @@ function renderProcessDetail(){
   const allActs = flattenActivities().filter(a=>a.processId===p.id);
   const total = allActs.length;
   const done = allActs.filter(a=>a.status==="completada").length;
-  const risk = allActs.filter(a=>a.status==="riesgo"||a.status==="vencida").length;
+  const risk = allActs.filter(isAtRisk).length;
   const avg = total ? Math.round(allActs.reduce((s,a)=>s+a.progress,0)/total) : 0;
   const procUnreadCount = state.viewingAs ? allActs.reduce((s,a)=>s+countUnreadNotes(a.notes, state.viewingAs),0) : 0;
 
@@ -4032,7 +3869,10 @@ function wireProcessDetailEvents(){
   function commitProcEdit(){
     const inp = byId("procNameInput");
     const val = inp ? inp.value.trim() : "";
-    if(val) p.name = val;
+    if(val && val !== p.name){
+      p.name = val;
+      postToSheet({ action:"renameProcess", procId:p.id, name:val });
+    }
     state.editProc = false;
   }
   const procEditBtn = byId("procEditBtn");
@@ -4056,13 +3896,19 @@ function wireProcessDetailEvents(){
     procDeleteBtn.addEventListener("click", ()=>{
       const subCount = SUBTHEMES.filter(s=>s.processId===p.id).length;
       const taskCount = flattenActivities().filter(a=>a.processId===p.id).length;
-      const msg = (subCount || taskCount)
-        ? `Vas a eliminar "${p.name}" junto con ${subCount} subtema(s) y ${taskCount} tarea(s). Esta acción no se puede deshacer.\n\n¿Quieres continuar?`
+      if(taskCount){
+        window.alert(`No se puede eliminar "${p.name}" porque todavía tiene ${taskCount} tarea(s).\n\nAbre cada tarea y, en "Ubicación", muévela a otro gran tema. Cuando esté vacío podrás eliminarlo.`);
+        return;
+      }
+      const msg = subCount
+        ? `Vas a eliminar "${p.name}" junto con ${subCount} subtema(s) vacío(s). Esta acción no se puede deshacer.\n\n¿Quieres continuar?`
         : `¿Eliminar el gran tema "${p.name}"? Esta acción no se puede deshacer.`;
       if(!window.confirm(msg)) return;
-      const idx = PROCESSES.findIndex(x=>x.id===p.id);
+      const pid = p.id;
+      const idx = PROCESSES.findIndex(x=>x.id===pid);
       if(idx>-1) PROCESSES.splice(idx,1);
-      for(let i=SUBTHEMES.length-1;i>=0;i--){ if(SUBTHEMES[i].processId===p.id) SUBTHEMES.splice(i,1); }
+      for(let i=SUBTHEMES.length-1;i>=0;i--){ if(SUBTHEMES[i].processId===pid) SUBTHEMES.splice(i,1); }
+      postToSheet({ action:"deleteProcess", procId:pid });
       state.selectedProcess = null;
       state.view = "dashboard";
       setActiveNav();
@@ -4088,7 +3934,10 @@ function wireProcessDetailEvents(){
         const inp = wrap.querySelector(`[data-sub-name-input="${id}"]`);
         const val = inp ? inp.value.trim() : "";
         const sub = subthemeOf(id);
-        if(sub && val) sub.name = val;
+        if(sub && val && val !== sub.name){
+          sub.name = val;
+          postToSheet({ action:"renameSubtheme", id:sub.id, name:val });
+        }
         state.editSub = null;
       } else {
         state.editSub = id;
@@ -4103,12 +3952,18 @@ function wireProcessDetailEvents(){
       const sub = subthemeOf(id);
       if(!sub) return;
       const n = sub.activities.length;
-      const msg = n
-        ? `Vas a eliminar el subtema "${sub.name}" junto con sus ${n} tarea(s). Esta acción no se puede deshacer.\n\n¿Quieres continuar?`
-        : `¿Eliminar el subtema "${sub.name}"? Esta acción no se puede deshacer.`;
-      if(!window.confirm(msg)) return;
+      if(n){
+        window.alert(`No se puede eliminar el subtema "${sub.name}" porque todavía tiene ${n} tarea(s).\n\nAbre cada tarea y, en "Ubicación", muévela a otro subtema. Cuando esté vacío podrás eliminarlo.`);
+        return;
+      }
+      if(SUBTHEMES.filter(x=>x.processId===sub.processId).length <= 1){
+        window.alert("Un gran tema necesita al menos un subtema. Crea otro antes de eliminar este.");
+        return;
+      }
+      if(!window.confirm(`¿Eliminar el subtema "${sub.name}"? Esta acción no se puede deshacer.`)) return;
       const idx = SUBTHEMES.findIndex(x=>x.id===id);
       if(idx>-1) SUBTHEMES.splice(idx,1);
+      postToSheet({ action:"deleteSubtheme", id:id });
       if(state.editSub===id) state.editSub = null;
       renderProcessDetail();
     });
@@ -4137,6 +3992,7 @@ function wireProcessDetailEvents(){
       const id = slugId("sub", val);
       const defaultResp = state.viewingAs && state.viewingAs!=="cd" ? [state.viewingAs] : ["cd"];
       SUBTHEMES.push({ id, processId:p.id, name:val, defaultResponsible:defaultResp, activities:[] });
+      postToSheet({ action:"addSubtheme", subtheme:{ id, granTema:p.name, name:val, procId:p.id } });
       state.addingSubFor = null;
       state.hierOpenAct[id] = true;
       renderAll();
@@ -4189,7 +4045,8 @@ function submitNewActivity(subthemeId){
   }
 
   postToSheet({ action:"addActivity", activity:{
-    id:newAct.id, subthemeId:subthemeId, name:newAct.name, responsible:newAct.responsible.join(","),
+    id:newAct.id, subthemeId:subthemeId, granTema:processOf(sub.processId).name, subtema:sub.name, procId:sub.processId,
+    name:newAct.name, responsible:newAct.responsible.join(","),
     status:newAct.status, priority:newAct.priority, start:newAct.start, end:newAct.end, progress:newAct.progress, recurrence:newAct.recurrence
   }});
 }
@@ -4476,8 +4333,14 @@ function openDetail(subthemeId, activityId, opts){
 
   const respHtml = a.responsible.map(r=>{
     const p = personOf(r);
-    return `<div class="resp-chip">${avatarHtml(r,26)}<span class="nm">${p.name}</span></div>`;
+    return `<div class="resp-chip">${avatarHtml(r,26)}<span class="nm">${p.name}</span><button class="resp-x" type="button" data-remove-resp="${r}" title="Quitar a ${escHtml_(p.name)}" aria-label="Quitar a ${escHtml_(p.name)}">&times;</button></div>`;
   }).join("");
+  const availableResp = Object.entries(TEAM).filter(([id])=> !a.responsible.includes(id));
+  const addRespHtml = availableResp.length
+    ? `<select id="addRespSel" class="fsel resp-add-sel"><option value="">+ Agregar responsable…</option>${availableResp.map(([id,p])=>`<option value="${id}">${escHtml_(p.name)}</option>`).join("")}</select>`
+    : "";
+  const moveProcOptions = PROCESSES.map(pr=>`<option value="${pr.id}" ${pr.id===sub.processId?'selected':''}>${escHtml_(pr.name)}</option>`).join("");
+  const moveSubOptions = SUBTHEMES.filter(x=>x.processId===sub.processId).map(x=>`<option value="${x.id}" ${x.id===sub.id?'selected':''}>${escHtml_(x.name)}</option>`).join("");
 
   const statusOptions = Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}" ${k===a.status?'selected':''}>${v}</option>`).join("");
   const priorityOptions = Object.entries(PRIORITY_LABELS).map(([k,v])=>`<option value="${k}" ${k===a.priority?'selected':''}>${v}</option>`).join("");
@@ -4528,6 +4391,19 @@ function openDetail(subthemeId, activityId, opts){
       <div class="dp-section">
         <div class="dp-section-title">Responsables</div>
         <div class="resp-list">${respHtml}</div>
+        ${addRespHtml}
+      </div>
+
+      <div class="dp-section">
+        <div class="dp-section-title">Ubicación</div>
+        <div class="move-box">
+          <label class="move-lbl">Gran tema</label>
+          <select id="moveProc" class="fsel">${moveProcOptions}</select>
+          <label class="move-lbl">Subtema</label>
+          <select id="moveSub" class="fsel">${moveSubOptions}</select>
+          <button class="move-apply-btn" id="moveApply" type="button" disabled>Mover tarea</button>
+        </div>
+        <div class="dp-hint">Cambiar la ubicación mueve la tarea en la plataforma y en el Excel, y queda en el Historial.</div>
       </div>
 
       <div class="dp-section">
@@ -4607,12 +4483,65 @@ function openDetail(subthemeId, activityId, opts){
     postToSheet({ action:"updateActivity", id:a.id, fields:{ recurrence:a.recurrence } });
   });
 
+  // ---- Responsables: agregar o quitar (se guarda en la hoja y queda en el Historial) ----
+  function saveResponsibles(){
+    renderAll();
+    openDetail(subthemeId, activityId, opts);
+    postToSheet({ action:"updateActivity", id:a.id, fields:{ responsible:a.responsible.join(",") } });
+  }
+  byId("detailPanel").querySelectorAll("[data-remove-resp]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      if(a.responsible.length <= 1){
+        showToast("La tarea debe tener al menos un responsable. Agrega a otra persona antes de quitar a esta.", 5000);
+        return;
+      }
+      a.responsible = a.responsible.filter(x=> x !== btn.dataset.removeResp);
+      saveResponsibles();
+    });
+  });
+  const addRespSel = byId("addRespSel");
+  if(addRespSel){
+    addRespSel.addEventListener("change", e=>{
+      const code = e.target.value;
+      if(!code) return;
+      if(!a.responsible.includes(code)) a.responsible.push(code);
+      saveResponsibles();
+    });
+  }
+
+  // ---- Ubicación: mover la tarea a otro subtema o gran tema ----
+  const moveProc = byId("moveProc"), moveSub = byId("moveSub"), moveApply = byId("moveApply");
+  function refreshMoveBtn(){ moveApply.disabled = !moveSub.value || moveSub.value === subthemeId; }
+  moveProc.addEventListener("change", ()=>{
+    moveSub.innerHTML = SUBTHEMES.filter(x=>x.processId===moveProc.value)
+      .map(x=>`<option value="${x.id}">${escHtml_(x.name)}</option>`).join("");
+    refreshMoveBtn();
+  });
+  moveSub.addEventListener("change", refreshMoveBtn);
+  moveApply.addEventListener("click", ()=>{
+    const destId = moveSub.value;
+    const dest = subthemeOf(destId);
+    if(!dest || destId === subthemeId) return;
+    const from = sub.activities.indexOf(a);
+    if(from > -1) sub.activities.splice(from, 1);
+    dest.activities.push(a);
+    const destProc = processOf(dest.processId);
+    state.pdOpenSub[destId] = true;
+    state.detailOpenFor = destId + "|" + a.id;
+    renderAll();
+    if(state.dayViewOpen && state.dayViewSubtheme === subthemeId) openDayView(subthemeId);
+    openDetail(destId, a.id, opts);
+    showToast(`Tarea movida a "${destProc.name}" › "${dest.name}". Quedó registrada en el Excel.`, 5000);
+    postToSheet({ action:"updateActivity", id:a.id, fields:{ subthemeId:destId } });
+  });
+
   byId("notesList").querySelectorAll("[data-del-note]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       if(!confirm("¿Eliminar este comentario? No se puede deshacer.")) return;
       const idx = parseInt(btn.dataset.delNote,10);
-      a.notes.splice(idx,1);
+      const removed = a.notes.splice(idx,1)[0];
       openDetail(subthemeId, activityId, opts);
+      if(removed) postToSheet({ action:"deleteNote", note:{ activityId:a.id, author:removed.author, date:removed.date, text:removed.text } });
     });
   });
   byId("notesList").querySelectorAll("[data-read-note]").forEach(btn=>{
