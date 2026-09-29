@@ -1641,6 +1641,23 @@ input,select,textarea{font-family:inherit;}
   box-shadow:0 10px 30px rgba(20,30,60,.35);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
 }
 .app-toast.show{opacity:1;transform:translate(-50%,0);}
+
+/* Dashboard: "Carga por responsable" y "Tareas por gran tema" aprovechan todo el espacio de su cuadro */
+.panel-fill{display:flex;flex-direction:column;}
+.spider-fill{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;}
+.spider-fill .org-spider-svg{flex:1 1 0;width:100%;max-width:none;height:auto;min-height:300px;max-height:680px;margin:0 auto;}
+.spider-fill .org-spider-caption{margin-top:8px;}
+.theme-list{flex:1 1 auto;display:flex;flex-direction:column;gap:6px;max-height:760px;overflow-y:auto;padding-right:4px;}
+.theme-list .bar-row{margin-bottom:0;flex:1 1 auto;min-height:32px;max-height:64px;}
+.theme-list .bar-row .lbl{width:46%;max-width:280px;white-space:normal;overflow:visible;text-overflow:clip;line-height:1.25;font-size:12.5px;}
+.theme-list .bar-track{height:11px;}
+@media (max-width:1240px){
+  .dash-row-load{grid-template-columns:1fr !important;}
+  .spider-fill .org-spider-svg{flex:none;height:auto;aspect-ratio:378/345;min-height:0;max-height:520px;}
+}
+@media (max-width:560px){
+  .theme-list .bar-row .lbl{width:50%;font-size:12px;}
+}
 </style>
 </head>
 <body>
@@ -1913,115 +1930,11 @@ const TEAM = {
   ag: { name:"Alejandra García",      color:"#DE9A2E", role:"Asistente de Internacionalización",     reportsTo:"cd", photo:null, secondaryUnit:"CASA" }
 };
 
-const PROCESSES = [
-  { id:"acred", name:"Acreditaciones", color:"#2E9BDE", desc:"Acreditaciones internacionales (AACSB, EQUIS, AMBA), estrategia de Facultad, informes PRME y datos para acreditación." },
-  { id:"rankings", name:"Rankings & Surveys - Gestión de KPIs", color:"#3B5BDB", desc:"Rankings, surveys, KPIs y estadísticas: manejo de datos, dashboards estratégicos, bases de datos, benchmark y BaseRoom institucional." },
-  { id:"dobles_epos", name:"Dobles Titulación EPOS (GLOCAL / KLU / UPF / Tulane)", color:"#7C6FE0", desc:"Programas de doble titulación de posgrado con universidades socias (GLOCAL, KLU, UPF, Tulane)." },
-  { id:"dobles_pre", name:"Dobles Titulación PRE (NEOMA / TBS / FGV / Tulane / Tilburg)", color:"#B45FC9", desc:"Programas de doble titulación de pregrado con universidades socias." },
-  { id:"convenios_esp", name:"Gestión de Convenios Específicos", color:"#8A6BD1", desc:"Convenios CEMS, renovaciones, estrategia y depuración del portafolio." },
-  { id:"oport_intl", name:"Oportunidades Internacionales (PRE / EPOS)", color:"#3EA6A0", desc:"Difusión, asesoría y acompañamiento a estudiantes de pregrado y posgrado." },
-  { id:"visitantes", name:"Visitantes Internacionales", color:"#0E9A8E", desc:"Seminarios y acompañamiento a profesores y delegaciones visitantes." },
-  { id:"escuela_verano", name:"Escuela de Verano", color:"#2FA463", desc:"Programa académico intensivo con oferta de cursos internacionales." },
-  { id:"semanas_intl", name:"Semanas Internacionales", color:"#DE9A2E", desc:"Ciclos de actividades de sensibilización global en el campus." },
-  { id:"eventos", name:"Organización de Eventos y Conferencias", color:"#E1935B", desc:"Producción logística y académica de eventos internacionales." },
-  { id:"iab", name:"IAB · International Advisory Board", color:"#C9922F", desc:"Gestión del consejo asesor internacional de la Facultad." },
-  { id:"posicionamiento", name:"Posicionamiento y Promoción Internacional", color:"#E15B54", desc:"Estrategia de visibilidad y marca internacional de la Facultad, incluida la página web de internacionalización." },
-  { id:"relacionamiento", name:"Relacionamiento en Actividades Internacionales U.", color:"#4FB0C6", desc:"Articulación con otras áreas y unidades de la Universidad." },
-  { id:"becas", name:"Competencias y Becas Internacionales", color:"#9AA23C", desc:"Postulaciones a becas, concursos y competencias internacionales." },
-  { id:"otros", name:"Otros", color:"#7B8794", desc:"Actividades transversales que no encajan en otro gran tema." }
-];
-
-/* Cada subtema agrupa una o varias tareas. Aquí solo va la ESTRUCTURA: las tareas llegan desde la hoja de Google
-   (la hoja manda). defaultResponsible = equipo típico del subtema, se usa para preseleccionar responsables al crear tareas. */
-const SUBTHEMES = [
-  { id:"ac-1", processId:"acred", name:"Gestión y logística acreditaciones", defaultResponsible:["jd"], activities:[] },
-  { id:"ac-2", processId:"acred", name:"AACSB", defaultResponsible:["cd", "jd"], activities:[] },
-  { id:"ac-3", processId:"acred", name:"EQUIS", defaultResponsible:["cd", "jd"], activities:[] },
-  { id:"ac-4", processId:"acred", name:"AMBA", defaultResponsible:["cd"], activities:[] },
-  { id:"ac-5", processId:"acred", name:"Estrategia de facultad", defaultResponsible:["cd"], activities:[] },
-  { id:"ac-6", processId:"acred", name:"Gestión de datos para acreditaciones (KPIs y Qualifications)", defaultResponsible:["jd"], activities:[] },
-  { id:"ac-7", processId:"acred", name:"Informes PRME", defaultResponsible:["cd", "ad"], activities:[] },
-  { id:"rk-1", processId:"rankings", name:"Manejo de datos", defaultResponsible:["jd"], activities:[] },
-  { id:"rk-2", processId:"rankings", name:"Desarrollo y mantenimiento de dashboards estratégicos", defaultResponsible:["jd"], activities:[] },
-  { id:"rk-3", processId:"rankings", name:"Gestión de bases de datos", defaultResponsible:["ag", "jd"], activities:[] },
-  { id:"rk-4", processId:"rankings", name:"Benchmark de rankings internacionales", defaultResponsible:["jd"], activities:[] },
-  { id:"rk-5", processId:"rankings", name:"Mantenimiento BaseRoom institucional", defaultResponsible:["jd"], activities:[] },
-  { id:"de-2", processId:"dobles_epos", name:"GLOCAL", defaultResponsible:["ad", "cd", "sf"], activities:[] },
-  { id:"de-3", processId:"dobles_epos", name:"KLU", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"de-6", processId:"dobles_epos", name:"UPF", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"de-7", processId:"dobles_epos", name:"Tulane", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"de-1", processId:"dobles_epos", name:"Otras gestiones DT EPOS", defaultResponsible:["ad"], activities:[] },
-  { id:"de-4", processId:"dobles_epos", name:"Evaluación de programas y convenios a futuro", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"dp-1", processId:"dobles_pre", name:"Gestión de dobles titulación de pregrado", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"dp-2", processId:"dobles_pre", name:"Acuerdos y seguimiento por institución (NEOMA, TBS, FGV)", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"dp-3", processId:"dobles_pre", name:"Investigación sobre dobles titulaciones", defaultResponsible:["sf"], activities:[] },
-  { id:"dp-4", processId:"dobles_pre", name:"Journey maps y gestión transversal de DT (KPIs, procesos, mercadeo, calendario OIA)", defaultResponsible:["sf"], activities:[] },
-  { id:"ce-1", processId:"convenios_esp", name:"Convenios CEMS", defaultResponsible:["ad"], activities:[] },
-  { id:"ce-2", processId:"convenios_esp", name:"Renovación de convenios", defaultResponsible:["ad"], activities:[] },
-  { id:"ce-3", processId:"convenios_esp", name:"Estrategia de convenios", defaultResponsible:["ad"], activities:[] },
-  { id:"ce-4", processId:"convenios_esp", name:"Depuración de convenios", defaultResponsible:["ad"], activities:[] },
-  { id:"ce-5", processId:"convenios_esp", name:"Nuevos convenios y alianzas (Austral, Hanken)", defaultResponsible:["ad"], activities:[] },
-  { id:"ce-6", processId:"convenios_esp", name:"Comité de intercambios y políticas", defaultResponsible:["ad", "jd"], activities:[] },
-  { id:"ce-7", processId:"convenios_esp", name:"Comunicación y matriz comparativa de convenios", defaultResponsible:["ad"], activities:[] },
-  { id:"oi-1", processId:"oport_intl", name:"Parrilla de redes (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-2", processId:"oport_intl", name:"Versión final del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-3", processId:"oport_intl", name:"Reuniones periódicas informativas (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-4", processId:"oport_intl", name:"Semana Internacional China (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-5", processId:"oport_intl", name:"Consejerías grupales e individuales (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-6", processId:"oport_intl", name:"Infografía de resultados de intercambio (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-7", processId:"oport_intl", name:"Reuniones generales EPOS", defaultResponsible:["jd", "ad"], activities:[] },
-  { id:"oi-8", processId:"oport_intl", name:"Reuniones específicas de actividades EPOS", defaultResponsible:["jd", "ad"], activities:[] },
-  { id:"oi-9", processId:"oport_intl", name:"Intercambios PRE", defaultResponsible:["jd"], activities:[] },
-  { id:"oi-10", processId:"oport_intl", name:"Handbooks de estudiantes (PRE)", defaultResponsible:["sf", "ad"], activities:[] },
-  { id:"oi-11", processId:"oport_intl", name:"Prácticas internacionales (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-12", processId:"oport_intl", name:"Automatización del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[] },
-  { id:"oi-13", processId:"oport_intl", name:"Otras líneas de actividades PRE (por definir)", defaultResponsible:["sf"], activities:[] },
-  { id:"vi-1", processId:"visitantes", name:"Coordinación de seminarios incoming", defaultResponsible:["jd"], activities:[] },
-  { id:"vi-2", processId:"visitantes", name:"Presentación de la Facultad a visitantes", defaultResponsible:["ag", "jd"], activities:[] },
-  { id:"vi-3", processId:"visitantes", name:"Ingreso de visitantes a Colombia y post-docs", defaultResponsible:["ag"], activities:[] },
-  { id:"vi-4", processId:"visitantes", name:"Fulbright", defaultResponsible:["ag"], activities:[] },
-  { id:"ev-1", processId:"escuela_verano", name:"Convocatoria EIV 2025", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-2", processId:"escuela_verano", name:"Comité selección cursos 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-3", processId:"escuela_verano", name:"Procesos Logísticos EIV 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-4", processId:"escuela_verano", name:"Procesos CSA EIV 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-5", processId:"escuela_verano", name:"Pre EIV 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-6", processId:"escuela_verano", name:"EIV 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-7", processId:"escuela_verano", name:"Post EIV 2026", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-8", processId:"escuela_verano", name:"EIV 2027: imagen, guidelines y call", defaultResponsible:["jd", "cd"], activities:[] },
-  { id:"ev-9", processId:"escuela_verano", name:"EIV 2027: comité de selección", defaultResponsible:["jd"], activities:[] },
-  { id:"ev-10", processId:"escuela_verano", name:"ICETEX: reembolsos a profesores EIV", defaultResponsible:["jd"], activities:[] },
-  { id:"si-1", processId:"semanas_intl", name:"Semanas Internacionales - Logística", defaultResponsible:["jd"], activities:[] },
-  { id:"si-2", processId:"semanas_intl", name:"Pre logistics Semanas", defaultResponsible:["jd"], activities:[] },
-  { id:"si-3", processId:"semanas_intl", name:"Semanas Internacionales", defaultResponsible:["jd"], activities:[] },
-  { id:"si-4", processId:"semanas_intl", name:"Post Semanas", defaultResponsible:["jd"], activities:[] },
-  { id:"si-5", processId:"semanas_intl", name:"Testimoniales y acompañamiento de profesores", defaultResponsible:["ad", "jd"], activities:[] },
-  { id:"ec-1", processId:"eventos", name:"Organización general de eventos y conferencias", defaultResponsible:["ag", "jd", "ad"], activities:[] },
-  { id:"ec-2", processId:"eventos", name:"Ferias de oportunidades (USA, universidades portuguesas)", defaultResponsible:["ad"], activities:[] },
-  { id:"ec-3", processId:"eventos", name:"Conferencias (ISFC 2027, Sustainable Finance)", defaultResponsible:["ag", "cd"], activities:[] },
-  { id:"iab-1", processId:"iab", name:"Gestión del International Advisory Board", defaultResponsible:["ag"], activities:[] },
-  { id:"pp-1", processId:"posicionamiento", name:"Estrategia de posicionamiento y promoción internacional", defaultResponsible:["jd", "ad", "sf"], activities:[] },
-  { id:"pp-2", processId:"posicionamiento", name:"Newsletter internacional", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"pp-3", processId:"posicionamiento", name:"Parrillas de contenido (CONSE y mercadeo)", defaultResponsible:["cd"], activities:[] },
-  { id:"pp-4", processId:"posicionamiento", name:"Difusión de oportunidades internacionales (posgrado / pregrado)", defaultResponsible:["cd"], activities:[] },
-  { id:"pp-5", processId:"posicionamiento", name:"Documentación en plataformas y PPT de la Facultad", defaultResponsible:["cd"], activities:[] },
-  { id:"pp-6", processId:"posicionamiento", name:"Página web de internacionalización", defaultResponsible:["jd", "ad", "sf", "ag"], activities:[] },
-  { id:"ru-1", processId:"relacionamiento", name:"Relacionamiento con áreas y unidades de la Universidad", defaultResponsible:["jd", "ad"], activities:[] },
-  { id:"ru-2", processId:"relacionamiento", name:"Apoyo a estudiantes: seguridad y riesgos", defaultResponsible:["cd", "ad"], activities:[] },
-  { id:"ru-3", processId:"relacionamiento", name:"Enlaces de internacionalización (Brasil, África, Portugal)", defaultResponsible:["cd", "ad"], activities:[] },
-  { id:"ru-4", processId:"relacionamiento", name:"Estadísticas de movilidad", defaultResponsible:["cd", "ad"], activities:[] },
-  { id:"ru-5", processId:"relacionamiento", name:"Jurídica", defaultResponsible:["cd", "ad"], activities:[] },
-  { id:"cb-1", processId:"becas", name:"Gestión de competencias y becas internacionales", defaultResponsible:["ad", "sf", "jd"], activities:[] },
-  { id:"cb-2", processId:"becas", name:"Competencias internacionales de casos (Cornell, GNAM, GBSN)", defaultResponsible:["ad"], activities:[] },
-  { id:"cb-3", processId:"becas", name:"ERASMUS (convocatoria y socios)", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"cb-4", processId:"becas", name:"JIBS", defaultResponsible:["ad", "sf"], activities:[] },
-  { id:"ot-1", processId:"otros", name:"Estrategia y planeación de la ORI", defaultResponsible:["cd"], activities:[] },
-  { id:"ot-2", processId:"otros", name:"Inducción de profesores nuevos", defaultResponsible:["ad", "cd"], activities:[] },
-  { id:"ot-3", processId:"otros", name:"Proyectos especiales y alianzas", defaultResponsible:["cd"], activities:[] },
-  { id:"ot-4", processId:"otros", name:"Apoyo transversal (logística y piezas gráficas)", defaultResponsible:["ag"], activities:[] },
-  { id:"ot-5", processId:"otros", name:"Handbooks y documentos oficiales", defaultResponsible:["cd"], activities:[] }
-];
-// Cada subtema queda junto a los de su gran tema (orden estable)
-SUBTHEMES.sort((a,b)=> PROCESSES.findIndex(p=>p.id===a.processId) - PROCESSES.findIndex(p=>p.id===b.processId));
+/* La plataforma NO trae grandes temas, subtemas, colores, descripciones ni tareas escritos en el código.
+   Todo se lee de la hoja de Google (Excel): la tabla "Subtemas válidos" de la hoja Tareas define la estructura
+   (gran tema, subtema, color y descripción) y cada fila de Tareas es una tarea. Estas listas nacen vacías y se llenan al sincronizar. */
+const PROCESSES = [];
+const SUBTHEMES = [];
 
 /* ================================================================
    2. ESTADO Y UTILIDADES
@@ -2260,20 +2173,22 @@ function syncStructureFromSheet(structure, activities){
   const plainS = v => String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
   const hasRegistry = structure.length > 0;
   const findProc = (procId, gname)=> (procId && PROCESSES.find(p=>p.id===procId)) || PROCESSES.find(p=> plainS(p.name)===plainS(gname));
-  const ensureProc = (procId, gname)=>{
+  const ensureProc = (procId, gname, color, desc)=>{
     let p = findProc(procId, gname);
     if(!p){
-      p = { id: procId || slugId("proc", gname), name: gname, color: NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length], desc: "" };
+      p = { id: procId || slugId("proc", gname), name: gname, color: color || NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length], desc: desc || "" };
       PROCESSES.push(p);
-    } else if(gname && p.name !== gname){
-      p.name = gname;                                  // se renombró en la hoja
+    } else {
+      if(gname && p.name !== gname) p.name = gname;    // se renombró en la hoja
+      if(color) p.color = color;                       // el color y la descripción también los manda la hoja
+      if(desc !== undefined && desc !== null && p.desc !== desc) p.desc = desc;
     }
     return p;
   };
   const inRegistry = new Set(), procOrder = [], subOrder = {};
   structure.forEach((it, i)=>{
     const gname = String(it.granTema||"").trim() || "Otros";
-    const p = ensureProc(String(it.procId||"").trim(), gname);
+    const p = ensureProc(String(it.procId||"").trim(), gname, String(it.color||"").trim(), String(it.desc||"").trim());
     if(procOrder.indexOf(p.id) === -1) procOrder.push(p.id);
     const sname = String(it.subtema||"").trim() || it.subthemeId;
     let sub = subthemeOf(it.subthemeId);
@@ -2320,6 +2235,15 @@ function syncStructureFromSheet(structure, activities){
   refreshProcessFilterOptions();
 }
 
+// Equipo típico de un subtema = quienes más aparecen como responsables en sus tareas (sale de la hoja, no del código)
+function typicalResponsibles(acts){
+  const cnt = {};
+  acts.forEach(a=> (a.responsible||[]).forEach(r=>{ cnt[r] = (cnt[r]||0) + 1; }));
+  const sorted = Object.entries(cnt).sort((x,y)=> y[1]-x[1]);
+  if(!sorted.length) return [];
+  const top = sorted[0][1];
+  return sorted.filter(([,n])=> n >= top/2).slice(0,3).map(([r])=> r);
+}
 function applySheetData(data){
   const seenStore = captureSeenNotes();
   syncStructureFromSheet(data.structure||[], data.activities||[]);
@@ -2355,6 +2279,7 @@ function applySheetData(data){
   SUBTHEMES.forEach(sub=>{
     if(actsBySub[sub.id]) sub.activities = actsBySub[sub.id];
     else if(hasRows) sub.activities = [];
+    sub.defaultResponsible = typicalResponsibles(sub.activities);
   });
 }
 
@@ -2576,9 +2501,9 @@ function renderProcessNav(){
       PROCESSES.push({ id, name:val, desc:"", color });
       // Un gran tema nuevo nace con un subtema "General" para que exista también en la hoja
       const subId = slugId("sub", "general_" + val);
-      const defResp = state.viewingAs && state.viewingAs!=="cd" ? [state.viewingAs] : ["cd"];
+      const defResp = state.viewingAs ? [state.viewingAs] : [];
       SUBTHEMES.push({ id:subId, processId:id, name:"General", defaultResponsible:defResp, activities:[] });
-      postToSheet({ action:"addSubtheme", subtheme:{ id:subId, granTema:val, name:"General", procId:id } });
+      postToSheet({ action:"addSubtheme", subtheme:{ id:subId, granTema:val, name:"General", procId:id, color:color, desc:"" } });
       state.addingProc = false;
       state.selectedProcess = id;
       state.view = "processDetail";
@@ -2745,7 +2670,7 @@ function shortLabel(name){
 }
 function buildSpiderOrgSVG(counts, idSuffix){
   const uid = "orgShadow-" + (idSuffix || "dash");
-  const W=560, H=460, CX=280, CY=205, R1=118, R2=76;
+  const W=560, H=460, CX=280, CY=205, R1=150, R2=76;
   const rootId = Object.entries(TEAM).find(([,p])=>!p.reportsTo)[0];
   const kids = Object.entries(TEAM).filter(([,p])=>p.reportsTo===rootId).map(([id])=>id);
 
@@ -2811,7 +2736,7 @@ function buildSpiderOrgSVG(counts, idSuffix){
     </g>`;
 
   return `
-    <svg viewBox="0 0 ${W} ${H}" class="org-spider-svg" role="img" aria-label="Organigrama del equipo">
+    <svg viewBox="120 47 378 345" preserveAspectRatio="xMidYMid meet" class="org-spider-svg" role="img" aria-label="Organigrama del equipo">
       <defs>
         <filter id="${uid}" x="-50%" y="-50%" width="200%" height="200%">
           <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0E1B33" flood-opacity="0.18"/>
@@ -2960,7 +2885,7 @@ function renderDashboard(){
   const maxProc = Math.max(1, ...procCounts.map(x=>x.c));
   const procRows = procCounts.filter(x=>x.c>0).sort((a,b)=>b.c-a.c).map(({p,c})=>`
     <div class="bar-row">
-      <div class="lbl"><span class="pdot" style="background:${p.color};width:7px;height:7px;margin-right:6px;display:inline-block;border-radius:2px;"></span>${p.name}</div>
+      <div class="lbl" title="${escHtml_(p.name)}"><span class="pdot" style="background:${p.color};width:7px;height:7px;margin-right:6px;display:inline-block;border-radius:2px;"></span>${escHtml_(p.name)}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${(c/maxProc*100)}%;background:${p.color}"></div></div>
       <div class="num">${c}</div>
     </div>`).join("");
@@ -3018,14 +2943,14 @@ function renderDashboard(){
       </div>
     </div>
 
-    <div class="dash-row" style="grid-template-columns:1fr 1fr;">
-      <div class="panel">
+    <div class="dash-row dash-row-load" style="grid-template-columns:1fr 1fr;">
+      <div class="panel panel-fill">
         <div class="panel-head"><div class="panel-title">Carga por responsable</div><div class="panel-sub">Tareas pendientes (sin llegar al 100%) · clic en una persona para ver en qué grandes temas trabaja</div></div>
-        ${spiderHtml}
+        <div class="spider-fill">${spiderHtml}</div>
       </div>
-      <div class="panel">
+      <div class="panel panel-fill">
         <div class="panel-head"><div class="panel-title">Tareas por gran tema</div><div class="panel-sub">Cuántas tareas tiene cada uno de los ${PROCESSES.length} grandes temas</div></div>
-        <div class="scroll-panel-list">${procRows || '<div class="empty-note">Sin datos con los filtros actuales.</div>'}</div>
+        <div class="theme-list">${procRows || '<div class="empty-note">Sin datos con los filtros actuales.</div>'}</div>
       </div>
     </div>
   `;
@@ -3421,7 +3346,7 @@ function renderProcessDetail(){
         <div class="n">${subNameHtml}${progressBadge(subAvg,'md')}${msgIconHtml(subUnreadCount)}</div>
         <div class="hact-meta">
           <span style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-muted);">${acts.length} tarea${acts.length===1?'':'s'} · ${acts.filter(a=>a.status==='completada').length} completada${acts.filter(a=>a.status==='completada').length===1?'':'s'}</span>
-          <div class="avatars-stack">${(sub.defaultResponsible.length?sub.defaultResponsible:["cd"]).map(r=>avatarHtml(r,22)).join("")}</div>
+          <div class="avatars-stack">${sub.defaultResponsible.map(r=>avatarHtml(r,22)).join("")}</div>
           <div class="hact-edit-actions">
             <button class="icon-btn-sm" data-sub-edit="${sub.id}" title="${isEditingSub?'Guardar nombre':'Renombrar subtema'}">${isEditingSub?iconCheck():iconPencil()}</button>
             <button class="icon-btn-sm danger" data-sub-delete="${sub.id}" title="Eliminar subtema">${iconTrash()}</button>
@@ -3756,7 +3681,7 @@ function openDayView(subthemeId){
    ================================================================ */
 function renderAddForm(subthemeId){
   const sub = subthemeOf(subthemeId);
-  const defaults = sub.defaultResponsible.length? sub.defaultResponsible : [];
+  const defaults = sub.defaultResponsible.length ? sub.defaultResponsible : (state.viewingAs ? [state.viewingAs] : []);
   return `
   <div class="note-form" id="addForm-${subthemeId}">
     <div class="form-grid2">
@@ -3990,7 +3915,7 @@ function wireProcessDetailEvents(){
       const val = (byId("newSubNameInput").value || "").trim();
       if(!val) return;
       const id = slugId("sub", val);
-      const defaultResp = state.viewingAs && state.viewingAs!=="cd" ? [state.viewingAs] : ["cd"];
+      const defaultResp = state.viewingAs ? [state.viewingAs] : [];
       SUBTHEMES.push({ id, processId:p.id, name:val, defaultResponsible:defaultResp, activities:[] });
       postToSheet({ action:"addSubtheme", subtheme:{ id, granTema:p.name, name:val, procId:p.id } });
       state.addingSubFor = null;
@@ -4744,8 +4669,12 @@ function processPendingNotes(){
   const items = raw.split("-").map(s=>s.replace(/\s+/g," ").trim()).filter(Boolean);
   if(!items.length){ toggleNotesPopover(false); return; }
 
+  if(!PROCESSES.length || !SUBTHEMES.length){
+    showToast("Todavía no hay grandes temas cargados desde la hoja. Intenta de nuevo en unos segundos.", 5000);
+    return;
+  }
   const defaultProc = PROCESSES[0].id;
-  const defaultSub = SUBTHEMES.find(s=>s.processId===defaultProc).id;
+  const defaultSub = (SUBTHEMES.find(s=>s.processId===defaultProc) || SUBTHEMES[0]).id;
   state.pendingCapture = items.map((text,i)=>({
     id: "cap"+Date.now().toString(36)+i,
     text, processId: defaultProc, subthemeId: defaultSub, priority: "media", deadline: "", notes: ""
@@ -4855,21 +4784,34 @@ function submitClassifiedTasks(){
   }
 
   const today = localISO(TODAY);
+  const respFor = sub => sub.defaultResponsible.length ? sub.defaultResponsible.slice() : (state.viewingAs ? [state.viewingAs] : []);
+  if(state.pendingCapture.some(it=> !respFor(subthemeOf(it.subthemeId)).length)){
+    showToast("Este subtema aún no tiene responsables. Entra a la plataforma como una persona (no como todo el equipo) para asignarle las tareas.", 7000);
+    return;
+  }
   state.pendingCapture.forEach(it=>{
     const sub = subthemeOf(it.subthemeId);
-    const responsible = sub.defaultResponsible.length ? sub.defaultResponsible : [];
+    const responsible = respFor(sub);
     const newAct = {
       id: it.subthemeId+"-a"+(sub.activities.length+1)+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),
       name: it.text, responsible, status:"no-iniciada", priority: it.priority,
       start: today, end: it.deadline, progress: 0,
-      notes: it.notes ? [{ author: responsible[0]||"cd", date: today, type:"pendiente", text: it.notes }] : [],
+      notes: it.notes ? [{ author: responsible[0], date: today, type:"pendiente", text: it.notes, seenBy:[responsible[0]] }] : [],
       files: []
     };
     sub.activities.push(newAct);
     postToSheet({ action:"addActivity", activity:{
       id:newAct.id, subthemeId:it.subthemeId, name:newAct.name, responsible:newAct.responsible.join(","),
       status:newAct.status, priority:newAct.priority, start:newAct.start, end:newAct.end, progress:newAct.progress
-    }});
+    }}).then(res=>{
+      // la nota de la captura también debe quedar en la bitácora del Excel
+      if(res && res.ok && it.notes){
+        postToSheet({ action:"addNote", note:{
+          id:"n"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+          activityId:newAct.id, author:responsible[0], date:today, time:"", type:"pendiente", text:it.notes
+        }});
+      }
+    });
   });
 
   state.pendingCapture = [];
