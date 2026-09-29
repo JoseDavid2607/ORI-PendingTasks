@@ -1658,6 +1658,61 @@ input,select,textarea{font-family:inherit;}
 @media (max-width:560px){
   .theme-list .bar-row .lbl{width:50%;font-size:12px;}
 }
+
+/* ================================================================
+   Ajustes finales
+   ================================================================ */
+/* Diagrama de carga: SIEMPRE del mismo tamaño */
+.spider-fill{justify-content:center;}
+.spider-fill .org-spider-svg{flex:none;width:100%;max-width:520px;height:auto;aspect-ratio:378/345;min-height:0;max-height:none;margin:0 auto;}
+@media (max-width:1240px){ .spider-fill .org-spider-svg{max-width:480px;aspect-ratio:378/345;} }
+/* Modal de carga por persona: grandes temas desplegables */
+button.pgt-row{width:100%;text-align:left;background:none;border:0;cursor:pointer;border-radius:10px;font:inherit;color:inherit;}
+button.pgt-row:hover{background:var(--canvas);}
+.pgt-group{border-bottom:1px solid var(--line-soft);}
+.pgt-chev{width:14px;height:14px;flex-shrink:0;color:var(--text-faint);transition:transform .15s;}
+.pgt-row.open .pgt-chev{transform:rotate(90deg);}
+.pgt-tasks{padding:2px 0 10px 34px;display:flex;flex-direction:column;gap:2px;}
+.pgt-task{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:8px 10px;border-radius:10px;background:none;border:0;cursor:pointer;font:inherit;color:inherit;}
+.pgt-task:hover{background:var(--blue-tint);}
+.pgt-task-name{font-size:12.5px;font-weight:600;}
+.pgt-task-meta{font-size:11px;color:var(--text-muted);}
+/* Detalle de tarea: papelera, fechas, "+" de responsables, ubicación plegable */
+.dp-title-row{display:flex;align-items:flex-start;gap:6px;}
+.dp-title-row .dp-title-input{flex:1;min-width:0;}
+.dp-trash{flex-shrink:0;width:30px;height:30px;margin-top:2px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-faint);opacity:.6;transition:opacity .15s,background .15s,color .15s;}
+.dp-trash svg{width:16px;height:16px;}
+.dp-trash:hover{opacity:1;background:var(--coral-tint);color:var(--coral);}
+.dp-date-input{font:inherit;font-size:13px;font-weight:600;color:var(--text);background:transparent;border:1px dashed transparent;border-radius:8px;padding:2px 4px;margin-left:-4px;cursor:pointer;max-width:100%;}
+.dp-date-input:hover,.dp-date-input:focus{border-color:var(--line);background:var(--canvas);outline:none;}
+.resp-list{align-items:center;}
+.resp-add-wrap{position:relative;}
+.resp-add-btn{width:30px;height:30px;border-radius:50%;border:1px dashed var(--line);color:var(--text-muted);font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center;background:transparent;transition:background .15s,color .15s,border-color .15s;}
+.resp-add-btn:hover{background:var(--blue-tint);color:var(--blue);border-color:#C8D6EE;}
+.resp-add-menu{position:absolute;top:36px;left:0;z-index:20;min-width:210px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow-sm,0 8px 24px rgba(20,30,60,.14));padding:6px;display:flex;flex-direction:column;gap:2px;}
+.resp-add-menu[hidden]{display:none;}
+.resp-add-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:12.5px;text-align:left;width:100%;background:none;border:0;cursor:pointer;color:var(--text);}
+.resp-add-item:hover{background:var(--blue-tint);}
+details.dp-move{border-top:1px solid var(--line-soft);padding-top:14px;}
+details.dp-move > summary{cursor:pointer;font-size:12.5px;font-weight:600;color:var(--text-muted);list-style:none;display:flex;align-items:center;gap:6px;}
+details.dp-move > summary::-webkit-details-marker{display:none;}
+details.dp-move > summary::before{content:"›";display:inline-block;transition:transform .15s;font-size:15px;}
+details.dp-move[open] > summary::before{transform:rotate(90deg);}
+details.dp-move > summary:hover{color:var(--blue);}
+details.dp-move .move-box{margin-top:10px;}
+/* Notas del Cuaderno ocultas en el título del gran tema */
+.proc-notes-btn{display:inline-flex;align-items:center;gap:4px;margin-left:10px;padding:3px 9px;border-radius:14px;font-size:11px;font-weight:700;color:var(--text-muted);background:var(--canvas);border:1px solid var(--line);vertical-align:middle;cursor:pointer;transition:background .15s,color .15s;}
+.proc-notes-btn svg{width:13px;height:13px;}
+.proc-notes-btn:hover{background:var(--blue-tint);color:var(--blue);}
+.pn-sub{margin-bottom:16px;}
+.pn-sub-title{font-size:12px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;}
+.pn-sub-title span{color:var(--text-faint);font-weight:600;}
+.pn-note{background:var(--canvas);border-radius:10px;padding:10px 12px;margin-bottom:6px;}
+.pn-note-meta{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:4px;}
+.pn-note-text{font-size:13px;line-height:1.45;white-space:pre-wrap;}
+.pn-del{opacity:.5;}.pn-del:hover{opacity:1;}
+/* Cronograma: llega hasta el borde inferior de la pantalla */
+@media (min-width:981px){ .view-wrap:has(.tl-body){padding-bottom:14px;} }
 </style>
 </head>
 <body>
@@ -2152,7 +2207,30 @@ function captureSeenNotes(){
   try{ localStorage.setItem(SEEN_STORE_KEY, JSON.stringify(store)); }catch(e){}
   return store;
 }
-window.addEventListener("pagehide", ()=>{ if(state.dataLoaded) captureSeenNotes(); });
+/* Las marcas de "leído" también viajan a la hoja "Lecturas" del Excel: se ven desde cualquier equipo y al volver a abrir. */
+let SERVER_READS = {};   // { persona: [claves] } lo que la hoja ya tiene
+function flushReads(useKeepalive){
+  const viewer = state.viewingAs;
+  if(!viewer || !SHEETS_API_URL || !state.dataLoaded) return;
+  const known = new Set(SERVER_READS[viewer] || []);
+  const fresh = [];
+  SUBTHEMES.forEach(sub=> sub.activities.forEach(a=> (a.notes||[]).forEach(n=>{
+    if(n.author===viewer || !(n.seenBy||[]).includes(viewer)) return;
+    const k = noteKey(a.id, n);
+    if(!known.has(k)){ known.add(k); fresh.push(k); }
+  })));
+  if(!fresh.length) return;
+  (SERVER_READS[viewer] = SERVER_READS[viewer] || []).push(...fresh);
+  if(useKeepalive){
+    try{ fetch(sheetUrl(), { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, keepalive:true,
+      body: JSON.stringify({ action:"markRead", person:viewer, keys:fresh, by:viewer }) }); }catch(e){}
+    return;
+  }
+  postToSheet({ action:"markRead", person:viewer, keys:fresh }).then(r=>{
+    if(!r || !r.ok) SERVER_READS[viewer] = (SERVER_READS[viewer]||[]).filter(k=> !fresh.includes(k));   // se reintenta en la próxima sincronización
+  });
+}
+window.addEventListener("pagehide", ()=>{ if(state.dataLoaded){ captureSeenNotes(); flushReads(true); } });
 
 /* ---- Estructura: la hoja manda también en los grandes temas y subtemas ----
    El registro "Subtemas válidos" del Excel trae, en orden, cada subtema con su gran tema.
@@ -2246,6 +2324,14 @@ function typicalResponsibles(acts){
 }
 function applySheetData(data){
   const seenStore = captureSeenNotes();
+  // Lo que la hoja sabe de lecturas se suma a lo guardado en este navegador
+  const reads = data.reads || {};
+  Object.keys(reads).forEach(v=>{
+    const arr = seenStore[v] || (seenStore[v] = []);
+    const have = new Set(arr);
+    reads[v].forEach(k=>{ if(!have.has(k)) arr.push(k); });
+    const srv = new Set(SERVER_READS[v] || []); reads[v].forEach(k=> srv.add(k)); SERVER_READS[v] = Array.from(srv);
+  });
   syncStructureFromSheet(data.structure||[], data.activities||[]);
   // Agrupar notas por tarea
   const notesByAct = {};
@@ -2259,6 +2345,8 @@ function applySheetData(data){
     notesByAct[n.activityId].push(note);
   });
   // Agrupar tareas por subtema
+  const snBySub = {};
+  (data.subNotes||[]).forEach(n=>{ (snBySub[n.subthemeId] = snBySub[n.subthemeId] || []).push({ id:n.id, author:n.author, date:n.date, type:"comentario", text:n.text }); });
   const actsBySub = {};
   (data.activities||[]).forEach(a=>{
     const act = {
@@ -2280,6 +2368,7 @@ function applySheetData(data){
     if(actsBySub[sub.id]) sub.activities = actsBySub[sub.id];
     else if(hasRows) sub.activities = [];
     sub.defaultResponsible = typicalResponsibles(sub.activities);
+    if(Array.isArray(data.subNotes)) sub.notes = snBySub[sub.id] || [];   // notas del Cuaderno: salen de la hoja "Notas"
   });
 }
 
@@ -2288,9 +2377,15 @@ async function syncFromSheet(silent){
   if(state.syncInFlight) return;          // evita peticiones encimadas
   if(state.pendingWrites > 0) return;     // hay cambios en camino a la hoja: no los pisamos con datos viejos
   state.syncInFlight = true;
+  const startedAt = Date.now();
   if(!silent || !state.dataLoaded) setSyncStatus("connecting");
   try{
     const data = await fetchSheetData();
+    // Si esta persona guardó algo mientras llegaba la respuesta, esa respuesta puede ser vieja: se descarta y se pide de nuevo
+    if(state.pendingWrites > 0 || (state.lastWriteAt||0) >= startedAt){
+      setTimeout(()=> syncFromSheet(true), 1200);
+      return;
+    }
     applySheetData(data);
     state.syncFails = 0;
     state.lastSyncAt = new Date();
@@ -2298,6 +2393,7 @@ async function syncFromSheet(silent){
     state.dataLoaded = true;
     setSyncStatus("ok");
     renderAll();
+    flushReads();
     if(firstLoad) renderCoverSpider();
     // Si hay un panel de detalle abierto, refrescarlo con los datos nuevos sin perder el scroll de notas
     if(state.detailOpenFor){
@@ -2322,7 +2418,8 @@ async function postToSheet(payload){
   if(!SHEETS_API_URL) return { ok:true, local:true };
   // Se envía quién hace el cambio para que quede en la hoja "Historial"
   payload = Object.assign({ by: state.viewingAs || "" }, payload);
-  state.pendingWrites = (state.pendingWrites||0) + 1;
+  const quiet = payload.action === "markRead";   // marcar leído no cambia datos: va en segundo plano y sin avisos
+  if(!quiet){ state.pendingWrites = (state.pendingWrites||0) + 1; state.lastWriteAt = Date.now(); }
   try{
     const data = await withRetries(async ()=>{
       const res = await fetchWithTimeout(sheetUrl(), {
@@ -2335,7 +2432,7 @@ async function postToSheet(payload){
       const d = await res.json();
       if(!d.ok){
         const e = new Error(String(d.error||"Error al guardar").replace(/^Error:\s*/,""));
-        e.definitive = true;
+        e.definitive = !d.retry;   // "hoja ocupada": se reintenta solo
         throw e;
       }
       return d;
@@ -2350,11 +2447,13 @@ async function postToSheet(payload){
       if(state.syncFails >= SYNC_FAILS_BEFORE_ERROR) setSyncStatus("error");
     }
     console.warn("Post error:", err);
-    showToast("No se pudo guardar el cambio en la hoja de Google: " + (err && err.message ? err.message : err) + ". La pantalla se restablece con lo que hay en la hoja.", 9000);
-    setTimeout(()=> syncFromSheet(true), 400);   // vuelve a mostrar lo que realmente quedó en la hoja
+    if(!quiet){
+      showToast("No se pudo guardar el cambio en la hoja de Google: " + (err && err.message ? err.message : err) + ". La pantalla se restablece con lo que hay en la hoja.", 9000);
+      setTimeout(()=> syncFromSheet(true), 400);   // vuelve a mostrar lo que realmente quedó en la hoja
+    }
     return { ok:false, error:String(err) };
   } finally {
-    state.pendingWrites = Math.max(0, (state.pendingWrites||1) - 1);
+    if(!quiet){ state.pendingWrites = Math.max(0, (state.pendingWrites||1) - 1); state.lastWriteAt = Date.now(); }
   }
 }
 
@@ -2624,26 +2723,46 @@ function closePersonModal(){
 
 function openPersonTasks(personId){
   const p = personOf(personId);
-  // Mismo criterio que el círculo de la persona en el panel: tareas del alcance actual que aún no llegan al 100%
   const isAnnual = state.dashboardScope==="annual";
-  const scopeList = isAnnual ? filteredActivities() : rollingWindowActivities();
-  const pending = scopeList.filter(a=> a.responsible.includes(personId) && a.progress<100 && a.status!=="completada");
+  const isOwn = !!state.viewingAs && state.viewingAs===personId;
+  const isPend = t=> t.progress<100 && t.status!=="completada";
+  const mine = flattenActivities().filter(t=> (isAnnual || inRollingWindow(t)) && t.responsible.includes(personId));
+  // Vista individual y es la propia persona: todas sus tareas. En los demás casos: solo lo pendiente.
+  const shown = isOwn ? mine : mine.filter(isPend);
 
   const perProc = new Map();
-  pending.forEach(t=> perProc.set(t.processId, (perProc.get(t.processId)||0) + 1));
+  shown.forEach(t=>{ if(!perProc.has(t.processId)) perProc.set(t.processId, []); perProc.get(t.processId).push(t); });
   const rows = PROCESSES.filter(pr=> perProc.has(pr.id))
-    .map(pr=>({ pr, n: perProc.get(pr.id) }))
-    .sort((x,y)=> y.n - x.n || PROCESSES.indexOf(x.pr) - PROCESSES.indexOf(y.pr));
+    .map(pr=>({ pr, tasks: perProc.get(pr.id).sort((x,y)=> String(x.end).localeCompare(String(y.end))) }))
+    .sort((x,y)=> y.tasks.length - x.tasks.length || PROCESSES.indexOf(x.pr) - PROCESSES.indexOf(y.pr));
 
-  const rowsHtml = rows.length ? rows.map(({pr,n})=>`
-    <div class="pgt-row">
-      <span class="pgt-dot" style="background:${pr.color};"></span>
-      <div class="pgt-name">${escHtml_(pr.name)}</div>
-      <div class="pgt-count"><b>${n}</b> tarea${n===1?'':'s'} pendiente${n===1?'':'s'}</div>
-    </div>`).join("") : `<div class="dm-empty">${escHtml_(p.name)} no tiene tareas pendientes por ahora.</div>`;
+  const plural = (n,one,many)=> n===1 ? one : many;
+  const rowsHtml = rows.length ? rows.map(({pr,tasks},i)=>{
+    const pend = tasks.filter(isPend).length;
+    const countTxt = isOwn
+      ? `<b>${tasks.length}</b> ${plural(tasks.length,'tarea','tareas')}${pend!==tasks.length ? ` · ${pend} ${plural(pend,'pendiente','pendientes')}` : ''}`
+      : `<b>${tasks.length}</b> ${plural(tasks.length,'pendiente','pendientes')}`;
+    const taskHtml = tasks.map(t=>`
+      <button type="button" class="pgt-task" data-open-task="${t.subthemeId}|${t.id}">
+        <span class="pgt-task-name">${escHtml_(t.name)}</span>
+        <span class="pgt-task-meta">${escHtml_(t.subthemeName)} · vence ${fmtShort(t.end)} · ${t.progress}%</span>
+      </button>`).join("");
+    return `<div class="pgt-group">
+      <button type="button" class="pgt-row" data-pgt-toggle="${i}" aria-expanded="false">
+        <svg class="pgt-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6"/></svg>
+        <span class="pgt-dot" style="background:${pr.color};"></span>
+        <span class="pgt-name">${escHtml_(pr.name)}</span>
+        <span class="pgt-count">${countTxt}</span>
+      </button>
+      <div class="pgt-tasks" id="pgtTasks${i}" hidden>${taskHtml}</div>
+    </div>`;
+  }).join("") : `<div class="dm-empty">${escHtml_(p.name)} no tiene ${isOwn?'tareas':'tareas pendientes'} por ahora.</div>`;
 
-  const nT = pending.length, nG = rows.length;
+  const nT = shown.length, nG = rows.length;
   const scopeTxt = isAnnual ? "Vista anual · todas las tareas" : "Vista mensual · 30 días atrás y adelante";
+  const subtitle = isOwn
+    ? `${nT} ${plural(nT,'tarea','tareas')} en ${nG} ${plural(nG,'gran tema','grandes temas')} · ${scopeTxt}`
+    : `${nT} ${plural(nT,'tarea pendiente','tareas pendientes')} (menos del 100%) en ${nG} ${plural(nG,'gran tema','grandes temas')} · ${scopeTxt}`;
   byId("personModal").innerHTML = `
     <div class="dm-head">
       <div style="display:flex;align-items:center;gap:12px;">
@@ -2653,12 +2772,28 @@ function openPersonTasks(personId){
       <button class="dm-close" id="pmClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
     </div>
     <div class="pm-body">
-      <div class="pm-subtitle">${nT} tarea${nT===1?'':'s'} pendiente${nT===1?'':'s'} (menos del 100%) en ${nG} ${nG===1?'gran tema':'grandes temas'} · ${scopeTxt}</div>
+      <div class="pm-subtitle">${subtitle}<br><span style="opacity:.8;">Toca un gran tema para ver las tareas.</span></div>
       ${rowsHtml}
     </div>
   `;
   showPersonModal();
   byId("pmClose").addEventListener("click", closePersonModal);
+  byId("personModal").querySelectorAll("[data-pgt-toggle]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const box = byId("pgtTasks"+btn.dataset.pgtToggle);
+      const open = box.hasAttribute("hidden");
+      if(open) box.removeAttribute("hidden"); else box.setAttribute("hidden","");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+      btn.classList.toggle("open", open);
+    });
+  });
+  byId("personModal").querySelectorAll("[data-open-task]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [sId,aId] = btn.dataset.openTask.split("|");
+      closePersonModal();
+      openDetail(sId, aId);
+    });
+  });
 }
 
 /* ================================================================
@@ -2668,7 +2803,7 @@ function shortLabel(name){
   const parts = name.split(" ");
   return parts.length>1 ? `${parts[0]} ${parts[1][0]}.` : parts[0];
 }
-function buildSpiderOrgSVG(counts, idSuffix){
+function buildSpiderOrgSVG(counts, idSuffix, ownId){
   const uid = "orgShadow-" + (idSuffix || "dash");
   const W=560, H=460, CX=280, CY=205, R1=150, R2=76;
   const rootId = Object.entries(TEAM).find(([,p])=>!p.reportsTo)[0];
@@ -2694,7 +2829,7 @@ function buildSpiderOrgSVG(counts, idSuffix){
     const c = counts[id]||0;
     const overloaded = c>=14;
     const x = CX + dir.dx*R1, y = CY + dir.dy*R1;
-    const rad = 26 + Math.round((c/maxKidCount)*14); // 26–40px según proporción
+    const rad = 32; // mismo tamaño para todos, sin importar la carga
 
     spokes += `<line x1="${CX}" y1="${CY}" x2="${x}" y2="${y}" stroke="var(--line)" stroke-width="1.4"/>`;
 
@@ -2718,7 +2853,7 @@ function buildSpiderOrgSVG(counts, idSuffix){
         <circle cx="${x}" cy="${y}" r="${rad}" fill="none" stroke="#fff" stroke-width="2.5"/>
         <text x="${x}" y="${y+4.5}" text-anchor="middle" class="org-node-initials">${initials(p.name)}</text>
         <text x="${x}" y="${y+rad+17}" text-anchor="middle" class="org-node-name">${shortLabel(p.name)}</text>
-        <text x="${x}" y="${y+rad+29}" text-anchor="middle" class="org-node-count" fill="${overloaded?'var(--coral)':'var(--text-faint)'}">${c} tarea${c===1?'':'s'}${overloaded?' ⚠':''}</text>
+        <text x="${x}" y="${y+rad+29}" text-anchor="middle" class="org-node-count" fill="${overloaded?'var(--coral)':'var(--text-faint)'}">${c} ${id===ownId ? (c===1?'tarea':'tareas') : (c===1?'pendiente':'pendientes')}${overloaded?' ⚠':''}</text>
         <title>${p.name} — ${p.role}\n${c} tarea${c===1?'':'s'} asignada${c===1?'':'s'}${overloaded?' · posible cuello de botella':''}${p.secondaryUnit?`\nTambién medio tiempo en ${p.secondaryUnit}`:''}</title>
       </g>`;
   });
@@ -2731,7 +2866,7 @@ function buildSpiderOrgSVG(counts, idSuffix){
       <circle cx="${CX}" cy="${CY}" r="${rootR}" fill="none" stroke="#fff" stroke-width="3"/>
       <text x="${CX}" y="${CY+5.5}" text-anchor="middle" class="org-node-initials org-node-initials-root">${initials(rootP.name)}</text>
       <text x="${CX}" y="${CY+rootR+19}" text-anchor="middle" class="org-node-name org-node-name-root">${rootP.name}</text>
-      <text x="${CX}" y="${CY+rootR+32}" text-anchor="middle" class="org-node-count">${rootCount} tarea${rootCount===1?'':'s'}</text>
+      <text x="${CX}" y="${CY+rootR+32}" text-anchor="middle" class="org-node-count">${rootCount} ${rootId===ownId ? (rootCount===1?'tarea':'tareas') : (rootCount===1?'pendiente':'pendientes')}</text>
       <title>${rootP.name} — ${rootP.role}\n${rootCount} tarea${rootCount===1?'':'s'} asignada${rootCount===1?'':'s'}</title>
     </g>`;
 
@@ -2874,11 +3009,16 @@ function renderDashboard(){
 
   // Por responsable → organigrama tipo araña. Solo cuenta lo que sigue pendiente:
   // tareas que no están al 100% de cumplimiento ni marcadas como completadas.
+  // En la vista individual: la persona ve TODAS sus tareas y, de las demás, cuántas tienen pendientes.
+  // En la vista de todo el equipo: pendientes de todos. Los círculos miden siempre lo mismo.
   const respCounts = {};
   Object.keys(TEAM).forEach(id=> respCounts[id]=0 );
-  list.filter(a=> a.progress<100 && a.status!=="completada")
-      .forEach(a=> a.responsible.forEach(r=>{ if(respCounts[r]!==undefined) respCounts[r]++; }) );
-  const spiderHtml = buildSpiderOrgSVG(respCounts);
+  flattenActivities().filter(a=> state.dashboardScope==="annual" || inRollingWindow(a))
+    .forEach(a=> a.responsible.forEach(r=>{
+      if(respCounts[r]===undefined) return;
+      if(r===state.viewingAs || (a.progress<100 && a.status!=="completada")) respCounts[r]++;
+    }));
+  const spiderHtml = buildSpiderOrgSVG(respCounts, undefined, state.viewingAs);
 
   // Por gran tema
   const procCounts = PROCESSES.map(p=>({ p, c:list.filter(a=>a.processId===p.id).length }));
@@ -3185,7 +3325,7 @@ function renderTimeline(){
       </button>
       <div class="tl-proc-current">
         <span class="pdot" style="background:${p.color};width:12px;height:12px;"></span>
-        <div><div class="tl-proc-name">${p.name}${msgIconHtml(procUnread)}</div><div class="tl-proc-count">${subs.length} subtema${subs.length===1?'':'s'} · ${state.tlProcessIdx+1} de ${procsWithData.length} grandes temas</div></div>
+        <div><div class="tl-proc-name">${p.name}${msgIconHtml(procUnread)}${procNotesBtnHtml(p)}</div><div class="tl-proc-count">${subs.length} subtema${subs.length===1?'':'s'} · ${state.tlProcessIdx+1} de ${procsWithData.length} grandes temas</div></div>
       </div>
       <button class="tl-nav-arrow" id="tlNext" title="Siguiente gran tema">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 18l6-6-6-6"/></svg>
@@ -3374,7 +3514,7 @@ function renderProcessDetail(){
 
   const procTitleHtml = state.editProc
     ? `<input type="text" id="procNameInput" class="inline-name-input inline-name-input-lg" value="${p.name.replace(/"/g,'&quot;')}" maxlength="80">`
-    : `<h2>${p.name}${msgIconHtml(procUnreadCount)}</h2>`;
+    : `<h2>${p.name}${msgIconHtml(procUnreadCount)}${procNotesBtnHtml(p)}</h2>`;
 
   byId("viewWrap").innerHTML = `
     <div class="section-title-page proc-title-row">
@@ -3985,6 +4125,7 @@ function markTaskNotesSeen(subthemeId, taskId){
   const task = findActivity(subthemeId, taskId);
   if(!task || !state.viewingAs || !task.notes) return;
   task.notes.forEach(n=>{ n.seenBy = n.seenBy || [n.author]; if(!n.seenBy.includes(state.viewingAs)) n.seenBy.push(state.viewingAs); });
+  flushReads();
 }
 function notifBadgeHtml(subthemeId, taskId, notes){
   if(!state.viewingAs) return "";
@@ -4048,26 +4189,6 @@ function renderPending(){
     </div>`;
   }
 
-  // Notas generales (del cuaderno) más recientes, de forma sutil
-  const allNotes = [];
-  SUBTHEMES.forEach(sub=>{
-    (sub.notes||[]).forEach(n=> allNotes.push({ ...n, sub }) );
-  });
-  allNotes.sort((a,b)=> b.date.localeCompare(a.date));
-  const recentNotes = allNotes.slice(0,6);
-  const notesStripHtml = recentNotes.length ? `
-    <div class="pending-notes-strip">
-      <div class="pending-notes-strip-title">Notas generales recientes</div>
-      <div class="pending-notes-strip-list">
-        ${recentNotes.map(n=>`
-          <div class="pending-note-chip" data-open-day-note="${n.sub.id}" title="Ver cronograma de ${n.sub.name}">
-            <span class="pending-note-sub">${n.sub.name}</span>
-            <span class="pending-note-text">${n.text}</span>
-            <span class="pending-note-meta">${personOf(n.author).name.split(" ")[0]} · ${fmtShort(n.date)}</span>
-          </div>`).join("")}
-      </div>
-    </div>` : "";
-
   let groupsHtml = ""; let totalVisible = 0;
   PROCESSES.forEach(p=>{
     const arr = byProc[p.id];
@@ -4086,7 +4207,7 @@ function renderPending(){
 
   byId("viewWrap").innerHTML = `
     <div class="section-title-page"><h2>Pendientes</h2><span>${totalVisible} tareas entre 30 días atrás y 30 días adelante de hoy · agrupadas por gran tema, ordenadas por deadline y prioridad</span></div>
-    ${notesStripHtml}
+    
     <div class="pending-list-wrap">
       ${groupsHtml || '<div class="empty-state"><div class="t">No hay tareas en esta ventana de 30 días</div><div class="s">Prueba quitando filtros o revisa el Cronograma para ver fechas más lejanas.</div></div>'}
     </div>
@@ -4262,7 +4383,10 @@ function openDetail(subthemeId, activityId, opts){
   }).join("");
   const availableResp = Object.entries(TEAM).filter(([id])=> !a.responsible.includes(id));
   const addRespHtml = availableResp.length
-    ? `<select id="addRespSel" class="fsel resp-add-sel"><option value="">+ Agregar responsable…</option>${availableResp.map(([id,p])=>`<option value="${id}">${escHtml_(p.name)}</option>`).join("")}</select>`
+    ? `<div class="resp-add-wrap">
+         <button type="button" class="resp-add-btn" id="respAddBtn" title="Agregar responsable" aria-label="Agregar responsable">+</button>
+         <div class="resp-add-menu" id="respAddMenu" hidden>${availableResp.map(([id,p])=>`<button type="button" class="resp-add-item" data-add-resp="${id}">${avatarHtml(id,20)}<span>${escHtml_(p.name)}</span></button>`).join("")}</div>
+       </div>`
     : "";
   const moveProcOptions = PROCESSES.map(pr=>`<option value="${pr.id}" ${pr.id===sub.processId?'selected':''}>${escHtml_(pr.name)}</option>`).join("");
   const moveSubOptions = SUBTHEMES.filter(x=>x.processId===sub.processId).map(x=>`<option value="${x.id}" ${x.id===sub.id?'selected':''}>${escHtml_(x.name)}</option>`).join("");
@@ -4283,7 +4407,10 @@ function openDetail(subthemeId, activityId, opts){
         </button>
       </div>
       <div class="dp-process"><span class="pdot" style="background:${proc.color};width:9px;height:9px;border-radius:3px;display:inline-block;"></span>${proc.name} · ${sub.name}</div>
-      <input type="text" class="dp-title-input" id="editName" value="${a.name.replace(/"/g,'&quot;')}">
+      <div class="dp-title-row">
+        <input type="text" class="dp-title-input" id="editName" value="${a.name.replace(/"/g,'&quot;')}">
+        <button type="button" class="dp-trash" id="dpDelete" title="Eliminar tarea" aria-label="Eliminar tarea">${iconTrash()}</button>
+      </div>
       <div class="dp-tagrow">
         <select id="editStatus" class="tag-select status-${a.status}">${statusOptions}</select>
         <select id="editPriority" class="tag-select prio-bg-${a.priority}">${priorityOptions}</select>
@@ -4294,12 +4421,12 @@ function openDetail(subthemeId, activityId, opts){
       <div class="dp-section">
         <div class="dp-section-title">Plazos</div>
         <div class="dp-grid">
-          <div class="dp-field"><div class="k">Inicio</div><div class="v">${fmtDate(a.start)}</div></div>
-          <div class="dp-field"><div class="k">Deadline</div><div class="v">${fmtDate(a.end)}</div></div>
+          <div class="dp-field"><div class="k">Inicio</div><div class="v"><input type="date" class="dp-date-input" id="editStart" value="${a.start}" title="Clic para cambiar la fecha"></div></div>
+          <div class="dp-field"><div class="k">Deadline</div><div class="v"><input type="date" class="dp-date-input" id="editEnd" value="${a.end}" title="Clic para cambiar la fecha"></div></div>
           <div class="dp-field"><div class="k">Duración</div><div class="v">${daysBetween(parseDate(a.start),parseDate(a.end))} días</div></div>
           <div class="dp-field"><div class="k">Estado temporal</div><div class="v">${timeStatusText(a)}</div></div>
         </div>
-        <div class="dp-hint">Las fechas se ajustan desde el cronograma detallado del subtema.</div>
+        <div class="dp-hint">Haz clic en una fecha para cambiarla con el calendario.</div>
       </div>
 
       <div class="dp-section">
@@ -4315,20 +4442,7 @@ function openDetail(subthemeId, activityId, opts){
 
       <div class="dp-section">
         <div class="dp-section-title">Responsables</div>
-        <div class="resp-list">${respHtml}</div>
-        ${addRespHtml}
-      </div>
-
-      <div class="dp-section">
-        <div class="dp-section-title">Ubicación</div>
-        <div class="move-box">
-          <label class="move-lbl">Gran tema</label>
-          <select id="moveProc" class="fsel">${moveProcOptions}</select>
-          <label class="move-lbl">Subtema</label>
-          <select id="moveSub" class="fsel">${moveSubOptions}</select>
-          <button class="move-apply-btn" id="moveApply" type="button" disabled>Mover tarea</button>
-        </div>
-        <div class="dp-hint">Cambiar la ubicación mueve la tarea en la plataforma y en el Excel, y queda en el Historial.</div>
+        <div class="resp-list">${respHtml}${addRespHtml}</div>
       </div>
 
       <div class="dp-section">
@@ -4345,6 +4459,18 @@ function openDetail(subthemeId, activityId, opts){
           <div class="actions"><button class="btn-primary" id="noteSubmit">Comentar</button></div>
         </div>
       </div>
+
+      <details class="dp-section dp-move" id="dpMove">
+        <summary>Cambiar ubicación de la tarea</summary>
+        <div class="move-box">
+          <label class="move-lbl">Gran tema</label>
+          <select id="moveProc" class="fsel">${moveProcOptions}</select>
+          <label class="move-lbl">Subtema</label>
+          <select id="moveSub" class="fsel">${moveSubOptions}</select>
+          <button class="move-apply-btn" id="moveApply" type="button" disabled>Mover tarea</button>
+        </div>
+        <div class="dp-hint">Cambiar la ubicación mueve la tarea en la plataforma y en el Excel, y queda en el Historial.</div>
+      </details>
     </div>
   `;
 
@@ -4408,11 +4534,11 @@ function openDetail(subthemeId, activityId, opts){
     postToSheet({ action:"updateActivity", id:a.id, fields:{ recurrence:a.recurrence } });
   });
 
-  // ---- Responsables: agregar o quitar (se guarda en la hoja y queda en el Historial) ----
-  function saveResponsibles(){
+  // ---- Responsables: agregar (+) o quitar. Se envía solo el cambio, para no pisar lo que otra persona haya hecho ----
+  function saveResponsibles(delta){
     renderAll();
     openDetail(subthemeId, activityId, opts);
-    postToSheet({ action:"updateActivity", id:a.id, fields:{ responsible:a.responsible.join(",") } });
+    postToSheet({ action:"updateActivity", id:a.id, fields:delta });
   }
   byId("detailPanel").querySelectorAll("[data-remove-resp]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
@@ -4420,19 +4546,60 @@ function openDetail(subthemeId, activityId, opts){
         showToast("La tarea debe tener al menos un responsable. Agrega a otra persona antes de quitar a esta.", 5000);
         return;
       }
-      a.responsible = a.responsible.filter(x=> x !== btn.dataset.removeResp);
-      saveResponsibles();
+      const code = btn.dataset.removeResp;
+      a.responsible = a.responsible.filter(x=> x !== code);
+      saveResponsibles({ removeResponsible: code });
     });
   });
-  const addRespSel = byId("addRespSel");
-  if(addRespSel){
-    addRespSel.addEventListener("change", e=>{
-      const code = e.target.value;
-      if(!code) return;
-      if(!a.responsible.includes(code)) a.responsible.push(code);
-      saveResponsibles();
+  const respAddBtn = byId("respAddBtn"), respAddMenu = byId("respAddMenu");
+  if(respAddBtn){
+    respAddBtn.addEventListener("click", e=>{
+      e.stopPropagation();
+      if(respAddMenu.hasAttribute("hidden")) respAddMenu.removeAttribute("hidden"); else respAddMenu.setAttribute("hidden","");
+    });
+    respAddMenu.querySelectorAll("[data-add-resp]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const code = btn.dataset.addResp;
+        if(!a.responsible.includes(code)) a.responsible.push(code);
+        saveResponsibles({ addResponsible: code });
+      });
+    });
+    byId("detailPanel").addEventListener("click", e=>{
+      if(!respAddMenu.hasAttribute("hidden") && !e.target.closest(".resp-add-wrap")) respAddMenu.setAttribute("hidden","");
     });
   }
+
+  // ---- Fechas: clic en la fecha y se ajusta con el calendario ----
+  function refreshAfterDates(){
+    renderAll();
+    if(state.dayViewOpen && state.dayViewSubtheme===subthemeId) openDayView(subthemeId);
+    openDetail(subthemeId, activityId, opts);
+  }
+  byId("editStart").addEventListener("change", e=>{
+    const v = e.target.value;
+    if(!v){ e.target.value = a.start; return; }
+    if(v > a.end){ showToast("La fecha de inicio no puede ser posterior al deadline.", 4500); e.target.value = a.start; return; }
+    a.start = v; refreshAfterDates();
+    postToSheet({ action:"updateActivity", id:a.id, fields:{ start:v } });
+  });
+  byId("editEnd").addEventListener("change", e=>{
+    const v = e.target.value;
+    if(!v){ e.target.value = a.end; return; }
+    if(v < a.start){ showToast("El deadline no puede ser anterior a la fecha de inicio.", 4500); e.target.value = a.end; return; }
+    a.end = v; refreshAfterDates();
+    postToSheet({ action:"updateActivity", id:a.id, fields:{ end:v } });
+  });
+
+  // ---- Eliminar tarea (papelera junto al título) ----
+  byId("dpDelete").addEventListener("click", ()=>{
+    if(!window.confirm(`¿Eliminar la tarea "${a.name}"?\n\nSe borra de la plataforma y del Excel (queda registrada en el Historial). Esta acción no se puede deshacer.`)) return;
+    const i = sub.activities.indexOf(a);
+    if(i > -1) sub.activities.splice(i, 1);
+    closeDetail();
+    renderAll();
+    if(state.dayViewOpen && state.dayViewSubtheme===subthemeId) openDayView(subthemeId);
+    postToSheet({ action:"deleteActivity", id:a.id });
+  });
 
   // ---- Ubicación: mover la tarea a otro subtema o gran tema ----
   const moveProc = byId("moveProc"), moveSub = byId("moveSub"), moveApply = byId("moveApply");
@@ -4477,6 +4644,7 @@ function openDetail(subthemeId, activityId, opts){
       if(!n) return;
       n.seenBy = n.seenBy || [n.author];
       if(!n.seenBy.includes(viewer)) n.seenBy.push(viewer);
+      flushReads();
       openDetail(subthemeId, activityId, opts);
     });
   });
@@ -4655,14 +4823,61 @@ function saveFreeNote(){
   const subthemeId = byId("freeNoteSubtheme").value;
   const sub = subthemeOf(subthemeId);
   if(!sub) return;
-  sub.notes = sub.notes || [];
+  const proc = processOf(sub.processId);
   const author = state.viewingAs || "cd";
-  sub.notes.push({ author, date: localISO(TODAY), type:"comentario", text });
+  const note = { id:"nt"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), author, date:localISO(TODAY), type:"comentario", text };
+  sub.notes = sub.notes || [];
+  sub.notes.push(note);
+  // La nota se guarda en la hoja "Notas" del Excel y queda oculta en el título de su gran tema
+  postToSheet({ action:"addSubNote", note:{ id:note.id, subthemeId, author, date:note.date, text } });
   byId("freeNoteText").value = "";
   const confirmEl = byId("freeNoteConfirm");
-  confirmEl.textContent = `Guardada en "${sub.name}" ✓`;
+  confirmEl.textContent = `Guardada en "${proc.name}" › "${sub.name}" ✓`;
   setTimeout(()=>{ if(confirmEl.textContent.includes(sub.name)) confirmEl.textContent=""; }, 3500);
+  renderAll();
 }
+
+function procNotesBtnHtml(p){
+  const n = SUBTHEMES.filter(x=>x.processId===p.id).reduce((t,x)=> t + (x.notes||[]).length, 0);
+  if(!n) return "";
+  return `<button type="button" class="proc-notes-btn" data-proc-notes="${p.id}" title="Notas del Cuaderno de este gran tema (${n})" aria-label="Ver notas del Cuaderno">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h7"/></svg><span>${n}</span></button>`;
+}
+function openProcNotes(procId){
+  const p = processOf(procId);
+  if(!p) return;
+  const subs = SUBTHEMES.filter(x=>x.processId===procId && (x.notes||[]).length);
+  const body = subs.length ? subs.map(x=>`
+    <div class="pn-sub">
+      <div class="pn-sub-title">${escHtml_(x.name)} <span>(${x.notes.length})</span></div>
+      ${x.notes.slice().reverse().map(n=>`
+        <div class="pn-note">
+          <div class="pn-note-meta"><b>${escHtml_(personOf(n.author).name)}</b> · ${fmtDate(n.date)}
+            <button type="button" class="icon-btn-sm danger pn-del" data-del-subnote="${x.id}|${n.id}" title="Eliminar nota">${iconTrash()}</button></div>
+          <div class="pn-note-text">${escHtml_(n.text)}</div>
+        </div>`).join("")}
+    </div>`).join("") : `<div class="dm-empty">Este gran tema aún no tiene notas del Cuaderno.</div>`;
+  byId("personModal").innerHTML = `
+    <div class="dm-head">
+      <div><div class="tag-proc"><span class="pdot" style="background:${p.color};width:8px;height:8px;border-radius:3px;display:inline-block;"></span>Notas del Cuaderno</div><h3>${escHtml_(p.name)}</h3></div>
+      <button class="dm-close" id="pmClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="pm-body">${body}</div>`;
+  showPersonModal();
+  byId("pmClose").addEventListener("click", closePersonModal);
+  byId("personModal").querySelectorAll("[data-del-subnote]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const [sId,nId] = btn.dataset.delSubnote.split("|");
+      if(!window.confirm("¿Eliminar esta nota del Cuaderno? Se borra también del Excel.")) return;
+      const sb = subthemeOf(sId);
+      if(sb) sb.notes = (sb.notes||[]).filter(n=> n.id !== nId);
+      postToSheet({ action:"deleteSubNote", id:nId });
+      renderAll();
+      openProcNotes(procId);
+    });
+  });
+}
+let _procNotesWired = false;
 
 function processPendingNotes(){
   const raw = byId("notesQuickText").value;
@@ -4820,6 +5035,13 @@ function submitClassifiedTasks(){
 }
 
 function wireNotesFab(){
+  if(!_procNotesWired){
+    _procNotesWired = true;
+    document.addEventListener("click", e=>{
+      const btn = e.target.closest && e.target.closest("[data-proc-notes]");
+      if(btn){ e.stopPropagation(); openProcNotes(btn.dataset.procNotes); }
+    });
+  }
   byId("notesFab").addEventListener("click", ()=> toggleNotesPopover());
   byId("notesPopClose").addEventListener("click", ()=> toggleNotesPopover(false));
   byId("notesProcessBtn").addEventListener("click", processPendingNotes);
