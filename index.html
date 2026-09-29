@@ -1884,7 +1884,8 @@ const PROCESSES = [
   { id:"posicionamiento", name:"Posicionamiento y Promoción Internacional",               color:"#E15B54", desc:"Estrategia de visibilidad y marca internacional de la Facultad." },
   { id:"relacionamiento", name:"Relacionamiento en Actividades Internacionales U.",       color:"#4FB0C6", desc:"Articulación con otras áreas y unidades de la Universidad." },
   { id:"becas", name:"Competencias y Becas Internacionales",                              color:"#9AA23C", desc:"Postulaciones a becas, concursos y competencias internacionales." },
-  { id:"web", name:"Página Web de Internacionalización",                                  color:"#6B8CCE", desc:"Mantenimiento y actualización del sitio web de la Facultad." }
+  { id:"web", name:"Página Web de Internacionalización",                                  color:"#6B8CCE", desc:"Mantenimiento y actualización del sitio web de la Facultad." },
+  { id:"otros", name:"Otros",                                                               color:"#7B8794", desc:"Actividades transversales que no encajan en otro gran tema." }
 ];
 
 /* Cada subtema agrupa una o varias tareas reales.
@@ -2222,7 +2223,53 @@ const SUBTHEMES = [
   { id:"pw-1", processId:"web", name:"Actualización y gestión de la página web de internacionalización", defaultResponsible:["jd","ad","sf","ag"], activities:[
     { id:"pw-1-a1", name:"Actualizar y mantener la página web de internacionalización de la Facultad", responsible:["jd","ad","sf","ag"], status:"seguimiento", priority:"media", start:"2026-01-05", end:"2026-12-18", progress:0, recurrence:"ninguna", notes:[], files:[] }
   ]},
-];/* ================================================================
+
+  /* ---------------- Subtemas nuevos (vienen del Excel; sus tareas llegan por sincronización) ---------------- */
+  { id:"ar-9", processId:"acred_rank", name:"Informe EQUIS 2027 (mid term report)", defaultResponsible:["cd", "jd"], activities:[] },
+  { id:"ar-10", processId:"acred_rank", name:"AMBA (best practices)", defaultResponsible:["cd"], activities:[] },
+  { id:"ar-11", processId:"acred_rank", name:"Estrategia de Facultad (investigación, teoría de cambios, industria y futuro del empleo)", defaultResponsible:["cd"], activities:[] },
+  { id:"de-2", processId:"dobles_epos", name:"GLOCAL: procesos académicos y administrativos", defaultResponsible:["ad", "cd", "sf"], activities:[] },
+  { id:"de-3", processId:"dobles_epos", name:"KLU: programa y requisitos", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"de-4", processId:"dobles_epos", name:"Evaluación de programas y convenios a futuro (YALE, IE NYC, China, UK)", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"de-5", processId:"dobles_epos", name:"UPF, Tulane y otras gestiones DT EPOS", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"dp-2", processId:"dobles_pre", name:"Acuerdos y seguimiento por institución (NEOMA, TBS, FGV)", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"dp-3", processId:"dobles_pre", name:"Investigación sobre dobles titulaciones", defaultResponsible:["sf"], activities:[] },
+  { id:"dp-4", processId:"dobles_pre", name:"Journey maps y gestión transversal de DT (KPIs, procesos, mercadeo, calendario OIA)", defaultResponsible:["sf"], activities:[] },
+  { id:"ce-5", processId:"convenios_esp", name:"Nuevos convenios y alianzas (Austral, Hanken)", defaultResponsible:["ad"], activities:[] },
+  { id:"ce-6", processId:"convenios_esp", name:"Comité de intercambios y políticas", defaultResponsible:["ad", "jd"], activities:[] },
+  { id:"ce-7", processId:"convenios_esp", name:"Comunicación y matriz comparativa de convenios", defaultResponsible:["ad"], activities:[] },
+  { id:"oi-10", processId:"oport_intl", name:"Handbooks de estudiantes (PRE)", defaultResponsible:["sf", "ad"], activities:[] },
+  { id:"oi-11", processId:"oport_intl", name:"Prácticas internacionales (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-12", processId:"oport_intl", name:"Automatización del requisito internacional (PRE)", defaultResponsible:["sf"], activities:[] },
+  { id:"oi-13", processId:"oport_intl", name:"Otras líneas de actividades PRE (por definir)", defaultResponsible:["sf"], activities:[] },
+  { id:"vi-3", processId:"visitantes", name:"Ingreso de visitantes a Colombia y post-docs", defaultResponsible:["ag"], activities:[] },
+  { id:"vi-4", processId:"visitantes", name:"Fulbright", defaultResponsible:["ag"], activities:[] },
+  { id:"ev-8", processId:"escuela_verano", name:"EIV 2027: imagen, guidelines y call", defaultResponsible:["jd", "cd"], activities:[] },
+  { id:"ev-9", processId:"escuela_verano", name:"EIV 2027: comité de selección", defaultResponsible:["jd"], activities:[] },
+  { id:"ev-10", processId:"escuela_verano", name:"ICETEX: reembolsos a profesores EIV", defaultResponsible:["jd"], activities:[] },
+  { id:"si-5", processId:"semanas_intl", name:"Testimoniales y acompañamiento de profesores", defaultResponsible:["ad", "jd"], activities:[] },
+  { id:"ec-2", processId:"eventos", name:"Ferias de oportunidades (USA, universidades portuguesas)", defaultResponsible:["ad"], activities:[] },
+  { id:"ec-3", processId:"eventos", name:"Conferencias (ISFC 2027, Sustainable Finance)", defaultResponsible:["ag", "cd"], activities:[] },
+  { id:"pp-2", processId:"posicionamiento", name:"Newsletter internacional", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"pp-3", processId:"posicionamiento", name:"Parrillas de contenido (CONSE y mercadeo)", defaultResponsible:["cd"], activities:[] },
+  { id:"pp-4", processId:"posicionamiento", name:"Difusión de oportunidades internacionales (posgrado / pregrado)", defaultResponsible:["cd"], activities:[] },
+  { id:"pp-5", processId:"posicionamiento", name:"Documentación en plataformas y PPT de la Facultad", defaultResponsible:["cd"], activities:[] },
+  { id:"ru-2", processId:"relacionamiento", name:"Apoyo a estudiantes: seguridad y riesgos", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"ru-3", processId:"relacionamiento", name:"Enlaces de internacionalización (Brasil, África, Portugal)", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"ru-4", processId:"relacionamiento", name:"Estadísticas de movilidad", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"ru-5", processId:"relacionamiento", name:"Jurídica", defaultResponsible:["cd", "ad"], activities:[] },
+  { id:"cb-2", processId:"becas", name:"Competencias internacionales de casos (Cornell, GNAM, GBSN)", defaultResponsible:["ad"], activities:[] },
+  { id:"cb-3", processId:"becas", name:"ERASMUS (convocatoria y socios)", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"cb-4", processId:"becas", name:"JIBS", defaultResponsible:["ad", "sf"], activities:[] },
+  { id:"ot-1", processId:"otros", name:"Estrategia y planeación de la ORI", defaultResponsible:["cd"], activities:[] },
+  { id:"ot-2", processId:"otros", name:"Inducción de profesores nuevos", defaultResponsible:["ad", "cd"], activities:[] },
+  { id:"ot-3", processId:"otros", name:"Proyectos especiales y alianzas", defaultResponsible:["cd"], activities:[] },
+  { id:"ot-4", processId:"otros", name:"Apoyo transversal (logística y piezas gráficas)", defaultResponsible:["ag"], activities:[] },
+];
+// Cada subtema queda junto a los de su gran tema (orden estable: no cambia el orden existente)
+SUBTHEMES.sort((a,b)=> PROCESSES.findIndex(p=>p.id===a.processId) - PROCESSES.findIndex(p=>p.id===b.processId));
+
+/* ================================================================
    2. ESTADO Y UTILIDADES
    ================================================================ */
 const STATUS_LABELS = {
@@ -2364,10 +2411,14 @@ function renderSyncBadge(){
 
 // Una petición con tiempo límite: si Apps Script se queda colgado, se corta y se reintenta
 async function fetchWithTimeout(url, options, ms){
-  const ctrl = ("AbortController" in window) ? new AbortController() : null;
-  const timer = setTimeout(()=>{ if(ctrl) ctrl.abort(); }, ms || SYNC_TIMEOUT_MS);
+  // El tiempo límite se controla con una carrera de promesas (sin AbortController), porque
+  // algunos entornos —como el visor de Claude— no permiten enviar una señal de cancelación.
+  let timer;
+  const timeout = new Promise((_, reject)=>{
+    timer = setTimeout(()=> reject(new Error("Tiempo de espera agotado")), ms || SYNC_TIMEOUT_MS);
+  });
   try{
-    return await fetch(url, Object.assign({}, options, ctrl ? { signal:ctrl.signal } : {}));
+    return await Promise.race([ fetch(url, options), timeout ]);
   } finally {
     clearTimeout(timer);
   }
@@ -2400,12 +2451,66 @@ async function fetchSheetData(){
   });
 }
 
+/* ---- Comentarios leídos: se conservan entre sincronizaciones y al recargar la página ---- */
+const SEEN_STORE_KEY = "ori_seen_notes_v1";
+function noteKey(activityId, n){ return [activityId, n.author, n.date, String(n.text||"").slice(0,80)].join("|"); }
+function loadSeenStore(){
+  try{ return JSON.parse(localStorage.getItem(SEEN_STORE_KEY) || "{}") || {}; }catch(e){ return {}; }
+}
+function captureSeenNotes(){
+  const store = loadSeenStore();
+  SUBTHEMES.forEach(sub=> sub.activities.forEach(a=> (a.notes||[]).forEach(n=>{
+    (n.seenBy||[]).forEach(viewer=>{
+      if(viewer===n.author) return;
+      const arr = store[viewer] || (store[viewer] = []);
+      const k = noteKey(a.id, n);
+      if(!arr.includes(k)) arr.push(k);
+    });
+  })));
+  try{ localStorage.setItem(SEEN_STORE_KEY, JSON.stringify(store)); }catch(e){}
+  return store;
+}
+window.addEventListener("pagehide", ()=>{ if(state.dataLoaded) captureSeenNotes(); });
+
+/* ---- Si la hoja trae un subtema o gran tema que la app no conoce, se crea ---- */
+function ensureStructureFromSheet(activities){
+  let created = false;
+  const plain = s => String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim().toLowerCase();
+  activities.forEach(a=>{
+    if(!a.subthemeId || subthemeOf(a.subthemeId)) return;
+    const gname = String(a.granTema||"").trim() || "Otros";
+    let proc = PROCESSES.find(p=> plain(p.name)===plain(gname));
+    if(!proc){
+      proc = { id: slugId("proc", gname), name: gname, color: NEW_PROCESS_COLORS[PROCESSES.length % NEW_PROCESS_COLORS.length], desc: "" };
+      PROCESSES.push(proc);
+    }
+    SUBTHEMES.push({ id:a.subthemeId, processId:proc.id, name:String(a.subtema||"").trim() || a.subthemeId, defaultResponsible:[], activities:[] });
+    created = true;
+  });
+  if(created){
+    SUBTHEMES.sort((x,y)=> PROCESSES.findIndex(p=>p.id===x.processId) - PROCESSES.findIndex(p=>p.id===y.processId));
+    const pSel = byId("fProcess");
+    if(pSel){
+      pSel.querySelectorAll("option:not([value=all])").forEach(o=>o.remove());
+      PROCESSES.forEach(p=>{ const o=document.createElement("option"); o.value=p.id; o.textContent=p.name; pSel.appendChild(o); });
+      pSel.value = state.filters.process;
+    }
+  }
+}
+
 function applySheetData(data){
+  const seenStore = captureSeenNotes();
+  ensureStructureFromSheet(data.activities||[]);
   // Agrupar notas por tarea
   const notesByAct = {};
   (data.notes||[]).forEach(n=>{
     if(!notesByAct[n.activityId]) notesByAct[n.activityId] = [];
-    notesByAct[n.activityId].push({ author:n.author, date:n.date, type:n.type, text:n.text });
+    const note = { author:n.author, date:n.date, type:n.type, text:n.text };
+    if(n.time) note.time = n.time;
+    note.seenBy = [n.author];
+    const k = noteKey(n.activityId, note);
+    Object.keys(seenStore).forEach(viewer=>{ if(seenStore[viewer].includes(k) && !note.seenBy.includes(viewer)) note.seenBy.push(viewer); });
+    notesByAct[n.activityId].push(note);
   });
   // Agrupar tareas por subtema
   const actsBySub = {};
@@ -2422,9 +2527,12 @@ function applySheetData(data){
     if(!actsBySub[a.subthemeId]) actsBySub[a.subthemeId] = [];
     actsBySub[a.subthemeId].push(act);
   });
-  // Reemplazar en SUBTHEMES solo los subtemas que sí vinieron en la hoja
+  // La hoja manda: cada subtema queda exactamente con las tareas que tiene la hoja
+  // (si una fila se borra de la hoja, desaparece de la app). Si la hoja llega vacía no se borra nada.
+  const hasRows = (data.activities||[]).length > 0;
   SUBTHEMES.forEach(sub=>{
     if(actsBySub[sub.id]) sub.activities = actsBySub[sub.id];
+    else if(hasRows) sub.activities = [];
   });
 }
 
@@ -3079,7 +3187,7 @@ function renderDashboard(){
         ${spiderHtml}
       </div>
       <div class="panel">
-        <div class="panel-head"><div class="panel-title">Tareas por gran tema</div><div class="panel-sub">Cuántas tareas tiene cada uno de los 16 grandes temas</div></div>
+        <div class="panel-head"><div class="panel-title">Tareas por gran tema</div><div class="panel-sub">Cuántas tareas tiene cada uno de los ${PROCESSES.length} grandes temas</div></div>
         <div class="scroll-panel-list">${procRows || '<div class="empty-note">Sin datos con los filtros actuales.</div>'}</div>
       </div>
     </div>
