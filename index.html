@@ -1718,6 +1718,82 @@ details.dp-move .move-box{margin-top:10px;}
 .day-modal.person-modal{height:auto;max-height:82vh;}
 .pgt-row.pgt-static{cursor:default;display:flex;align-items:center;gap:12px;padding:12px 8px;}
 .pgt-row.pgt-static:hover{background:none;}
+/* ================================================================
+   CSS · EQUIPO — fotos en la portada, botón sutil de edición y editor
+   ================================================================ */
+.c-sphere{color:var(--ink,#fff);}
+.c-sphere .c-photo{position:absolute;inset:0;width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;pointer-events:none;user-select:none;}
+.c-sphere .c-tint{position:absolute;inset:0;border-radius:50%;background:var(--c);mix-blend-mode:color;opacity:.78;pointer-events:none;}
+.c-sphere .c-tint2{position:absolute;inset:0;border-radius:50%;background:var(--c);opacity:.16;pointer-events:none;}
+.c-sphere .c-gloss{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(circle at 32% 26%, rgba(255,255,255,.30) 0%, rgba(255,255,255,0) 45%),radial-gradient(circle at 70% 85%, rgba(0,0,0,.14) 0%, rgba(0,0,0,0) 55%);}
+.c-sphere .c-photo[hidden],.c-sphere .c-tint[hidden],.c-sphere .c-tint2[hidden],.c-sphere .c-gloss[hidden]{display:none;}
+
+/* Botón sutil para cambiar foto / color: aparece al pasar el cursor por la burbuja */
+.c-edit{
+  --s:92px;
+  position:absolute;left:calc(var(--x) + var(--s) * .36);top:calc(var(--y) + var(--s) * .36);
+  transform:translate(-50%,-50%) scale(.85);z-index:6;
+  width:28px;height:28px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);background:rgba(255,255,255,.96);color:var(--text-muted);cursor:pointer;
+  opacity:0;box-shadow:0 4px 12px -4px rgba(21,34,62,.32);
+  transition:opacity .2s var(--ease), transform .2s var(--ease), color .15s, border-color .15s;
+}
+.c-edit svg{width:14px;height:14px;}
+.c-edit--core{--s:138px;}
+.c-node:hover + .c-edit,.c-node:focus-visible + .c-edit,.c-edit:hover,.c-edit:focus-visible{opacity:1;transform:translate(-50%,-50%) scale(1);}
+.c-edit:hover,.c-edit:focus-visible{color:var(--blue);border-color:#C8D6EE;outline:none;}
+@media (hover:none){ .c-edit{opacity:.92;transform:translate(-50%,-50%) scale(1);} }
+
+/* Editor */
+.te-overlay{position:fixed;inset:0;z-index:9000;background:rgba(21,34,62,.38);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;}
+.te-overlay[hidden]{display:none;}
+.te-card{width:min(560px,100%);max-height:94vh;overflow:auto;background:#fff;border-radius:20px;box-shadow:0 30px 80px -20px rgba(14,27,51,.45);display:flex;flex-direction:column;}
+.te-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:20px 22px 6px;}
+.te-eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+.te-head h3{font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--ink);margin-top:3px;}
+.te-x{width:32px;height:32px;border-radius:50%;border:0;background:var(--blue-soft);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.te-x:hover{background:var(--blue-tint);color:var(--blue);}
+.te-x svg{width:16px;height:16px;}
+.te-body{padding:10px 22px 4px;display:flex;flex-direction:column;gap:16px;}
+.te-seg{display:inline-flex;align-self:flex-start;padding:3px;border-radius:999px;background:var(--line-soft);}
+.te-seg button{border:0;background:none;padding:7px 18px;border-radius:999px;font:600 13px var(--font-body,inherit);color:var(--text-muted);cursor:pointer;transition:background .15s,color .15s,box-shadow .15s;}
+.te-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 4px rgba(21,34,62,.16);}
+.te-stage{display:flex;gap:26px;align-items:flex-start;justify-content:center;flex-wrap:wrap;padding:6px 0 2px;}
+.te-prev-col{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:150px;padding-top:8px;}
+.te-prev{position:relative;width:var(--s);height:var(--s);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:calc(var(--s) * .29);letter-spacing:.02em;animation:none;}
+.te-prev-cap{font-size:11.5px;color:var(--text-faint);}
+.te-crop-col{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.te-crop{position:relative;width:256px;height:256px;border-radius:14px;overflow:hidden;background:#fff;border:1px solid var(--line);cursor:grab;touch-action:none;user-select:none;max-width:100%;}
+.te-crop.dragging{cursor:grabbing;}
+.te-crop canvas{display:block;width:256px;height:256px;}
+.te-mask{position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 400px rgba(255,255,255,.74);border:2px solid #fff;outline:1px solid rgba(21,34,62,.22);pointer-events:none;}
+.te-zoom{display:flex;align-items:center;gap:8px;width:256px;max-width:100%;color:var(--text-faint);}
+.te-zoom svg{width:16px;height:16px;flex-shrink:0;}
+.te-zoom input{flex:1;accent-color:var(--blue);}
+.te-crop-hint{font-size:11.5px;color:var(--text-faint);}
+.te-photo-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.te-photo-row[hidden],.te-crop-col[hidden],.te-link[hidden]{display:none;}
+.te-btn{display:inline-flex;align-items:center;justify-content:center;padding:9px 16px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;color:var(--text);font:700 13px var(--font-body,inherit);cursor:pointer;transition:background .15s,border-color .15s,box-shadow .15s;}
+.te-btn:hover{background:var(--blue-soft);border-color:#C8D6EE;}
+.te-btn--primary{background:var(--blue);border-color:var(--blue);color:#fff;}
+.te-btn--primary:hover{background:var(--blue-deep);border-color:var(--blue-deep);}
+.te-btn--primary:disabled{opacity:.45;cursor:not-allowed;}
+.te-btn--ghost{border-color:transparent;background:none;color:var(--text-muted);}
+.te-link{border:0;background:none;padding:0;font:600 12.5px var(--font-body,inherit);color:var(--text-muted);text-decoration:underline;cursor:pointer;}
+.te-link:hover{color:#C0443E;}
+.te-colors{display:flex;flex-direction:column;gap:9px;}
+.te-label{font-size:12.5px;font-weight:700;color:var(--text);}
+.te-label span{font-weight:500;color:var(--text-faint);}
+.te-swatches{display:flex;flex-wrap:wrap;gap:9px;}
+.te-sw{width:28px;height:28px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line-strong);cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s;}
+.te-sw:hover{transform:scale(1.1);}
+.te-sw.on{box-shadow:0 0 0 2px var(--ink);}
+.te-custom{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-size:12.5px;font-weight:600;color:var(--text-muted);cursor:pointer;}
+.te-custom input{width:30px;height:30px;padding:0;border:0;background:none;cursor:pointer;}
+.te-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 22px 20px;}
+.te-note{font-size:11.5px;color:var(--text-faint);}
+.te-actions{display:flex;gap:8px;margin-left:auto;}
+@media (max-width:520px){ .te-stage{gap:14px;} .te-foot{flex-direction:column-reverse;align-items:stretch;} .te-actions{margin-left:0;} .te-actions .te-btn{flex:1;} }
 </style>
 </head>
 <body>
@@ -1979,16 +2055,73 @@ details.dp-move .move-box{margin-top:10px;}
 const TODAY = new Date(); // fecha real del sistema, usada para alertas y vencimientos
 
 const TEAM = {
-  // "photo": deja null por ahora (se muestran iniciales). Cuando migremos a la base en
-  // Excel/Sheets, basta con poner aquí la URL de la foto de cada persona.
+  // "photo" y "color" se sobrescriben con lo que diga la hoja "Equipo" del Excel (se editan desde la portada).
+  // "photoMode": "initials" (iniciales sobre color sólido) o "photo" (foto con filtro del color).
   // "secondaryUnit": unidad externa con la que la persona también trabaja medio tiempo
   // (se dibuja como una línea sutil hacia afuera del organigrama). null si no aplica.
-  cd: { name:"Carolina Dávila",       color:"#1E3358", role:"Directora Oficina Internacional",                    reportsTo:null, photo:null, secondaryUnit:null },
-  ad: { name:"Alejandra Dangond",     color:"#6E62E0", role:"Gestora de Internacionalización",       reportsTo:"cd", photo:null, secondaryUnit:null },
-  jd: { name:"Jose David Martínez",   color:"#0E9A8E", role:"Gestor de Internacionalización",        reportsTo:"cd", photo:null, secondaryUnit:null },
-  sf: { name:"Sophie Fernández",      color:"#E15B54", role:"Profesional Internacional Pregrado",                           reportsTo:"cd", photo:null, secondaryUnit:"PRE (Pregrado)" },
-  ag: { name:"Alejandra García",      color:"#DE9A2E", role:"Asistente de Internacionalización",     reportsTo:"cd", photo:null, secondaryUnit:"CASA" }
+  cd: { name:"Carolina Dávila",       color:"#E3A700", role:"Directora Oficina Internacional",                    reportsTo:null, photo:null, photoMode:"initials", secondaryUnit:null },
+  ad: { name:"Alejandra Dangond",     color:"#2FA463", role:"Gestora de Internacionalización",       reportsTo:"cd", photo:null, photoMode:"initials", secondaryUnit:null },
+  jd: { name:"Jose David Martínez",   color:"#2F6FDE", role:"Gestor de Internacionalización",        reportsTo:"cd", photo:null, photoMode:"initials", secondaryUnit:null },
+  sf: { name:"Sophie Fernández",      color:"#8E5FD6", role:"Profesional Internacional Pregrado",                           reportsTo:"cd", photo:null, photoMode:"initials", secondaryUnit:"PRE (Pregrado)" },
+  ag: { name:"Alejandra García",      color:"#12B5A0", role:"Asistente de Internacionalización",     reportsTo:"cd", photo:null, photoMode:"initials", secondaryUnit:"CASA" }
 };
+
+/* ================================================================
+   EQUIPO · color, foto e iniciales de cada persona
+   La hoja "Equipo" del Excel es la fuente de verdad: lo que se elige en la portada
+   se guarda allí y lo ve todo el equipo, desde cualquier equipo o navegador.
+   (Los colores de aquí abajo solo se usan mientras llega la primera respuesta de la hoja.)
+   ================================================================ */
+const TEAM_CACHE_KEY = "ori_team_v1";
+const TEAM_REV = {};          // "versión" (hash) de la foto que este navegador ya tiene, por persona
+let TEAM_CHANGED = false;
+const TEAM_PALETTE = ["#E3A700","#8E5FD6","#2FA463","#2F6FDE","#12B5A0","#E15B54","#E0559C","#F08A24","#1E3358","#7C8DA6"];
+const PHOTO_DATA_RE = /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/;
+function isHex6(c){ return /^#[0-9a-fA-F]{6}$/.test(String(c||"")); }
+// Texto claro u oscuro según el color de fondo (para que las iniciales siempre se lean)
+function inkOn(hex){
+  if(!isHex6(hex)) return "#fff";
+  const ch = i => { const v = parseInt(hex.substr(i,2),16)/255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); };
+  const L = 0.2126*ch(1) + 0.7152*ch(3) + 0.0722*ch(5);
+  return L > 0.34 ? "#1E3358" : "#fff";
+}
+function usesPhoto(p){ return !!p && p.photoMode==="photo" && !!p.photo; }
+function teamSignature(){
+  return Object.keys(TEAM).map(id=> id+"|"+TEAM[id].color+"|"+(TEAM[id].photoMode||"")+"|"+(TEAM_REV[id]||"")+"|"+(TEAM[id].photo?TEAM[id].photo.length:0)).join(";");
+}
+function consumeTeamChanged(){ const v = TEAM_CHANGED; TEAM_CHANGED = false; return v; }
+function coverVisible(){ const el = document.getElementById("coverScreen"); return !!el && getComputedStyle(el).display !== "none"; }
+// Se le dice a la hoja qué fotos ya tenemos para que no las reenvíe en cada sincronización
+function teamRevParam(){
+  return Object.keys(TEAM).filter(id=> TEAM[id].photo && TEAM_REV[id]).map(id=> id+":"+TEAM_REV[id]).join(",");
+}
+function saveTeamCache(){
+  try{
+    const o = {};
+    Object.keys(TEAM).forEach(id=>{ const p = TEAM[id]; o[id] = { color:p.color, mode:(p.photoMode==="photo"?"foto":"iniciales"), rev:TEAM_REV[id]||"", photo:p.photo||"" }; });
+    localStorage.setItem(TEAM_CACHE_KEY, JSON.stringify(o));
+  }catch(e){ /* sin espacio o sin permiso: no pasa nada, la hoja sigue siendo la fuente */ }
+}
+function applyTeamConfig(team){
+  if(!team || typeof team !== "object") return;
+  const before = teamSignature();
+  Object.keys(team).forEach(id=>{
+    const t = team[id], p = TEAM[id];
+    if(!p || !t) return;
+    if(isHex6(t.color)) p.color = t.color;
+    if(t.photo !== undefined) p.photo = (typeof t.photo==="string" && PHOTO_DATA_RE.test(t.photo)) ? t.photo : null;
+    if(t.rev !== undefined) TEAM_REV[id] = String(t.rev||"");
+    p.photoMode = (t.mode==="foto" && p.photo) ? "photo" : "initials";
+  });
+  if(teamSignature() !== before) TEAM_CHANGED = true;
+  saveTeamCache();
+}
+(function loadTeamCache(){
+  try{
+    const o = JSON.parse(localStorage.getItem(TEAM_CACHE_KEY) || "null");
+    if(o){ applyTeamConfig(o); TEAM_CHANGED = false; }
+  }catch(e){}
+})();
 
 /* La plataforma NO trae grandes temas, subtemas, colores, descripciones ni tareas escritos en el código.
    Todo se lee de la hoja de Google (Excel): la tabla "Subtemas válidos" de la hoja Tareas define la estructura
@@ -2101,7 +2234,7 @@ function uniq(arr){ return [...new Set(arr)]; }
 function avatarHtml(personId, size){
   const p = personOf(personId);
   const s = size? `width:${size}px;height:${size}px;font-size:${Math.round(size*0.38)}px;` : "";
-  return `<div class="avatar" style="background:${p.color};${s}" title="${p.name}">${initials(p.name)}</div>`;
+  return `<div class="avatar" style="background:${p.color};color:${inkOn(p.color)};${s}" title="${p.name}">${initials(p.name)}</div>`;
 }
 function statusTag(status){ return `<span class="tag status-${status}"><span class="dot"></span>${STATUS_LABELS[status]}</span>`; }
 function priorityTag(p){ return `<span class="tag-prio prio-${p}">${PRIORITY_LABELS[p]}</span>`; }
@@ -2189,7 +2322,7 @@ function sheetUrl(){
 
 async function fetchSheetData(){
   return withRetries(async ()=>{
-    const res = await fetchWithTimeout(sheetUrl(), { method:"GET", cache:"no-store", redirect:"follow" });
+    const res = await fetchWithTimeout(sheetUrl() + "&photoRev=" + encodeURIComponent(teamRevParam()), { method:"GET", cache:"no-store", redirect:"follow" });
     if(!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     if(!data.ok) throw new Error(data.error || "Respuesta inválida");
@@ -2335,6 +2468,7 @@ function typicalResponsibles(acts){
   return sorted.filter(([,n])=> n >= top/2).slice(0,3).map(([r])=> r);
 }
 function applySheetData(data){
+  applyTeamConfig(data.team);   // color, foto e iniciales del equipo (hoja "Equipo")
   const seenStore = captureSeenNotes();
   // Lo que la hoja sabe de lecturas se suma a lo guardado en este navegador
   const reads = data.reads || {};
@@ -2425,7 +2559,8 @@ async function syncFromSheet(silent){
     setSyncStatus("ok");
     renderAll();
     flushReads();
-    if(firstLoad) renderCoverSpider();
+    const teamChanged = consumeTeamChanged();
+    if(firstLoad || (teamChanged && coverVisible())) renderCoverSpider();
     // Si hay un panel de detalle abierto, refrescarlo con los datos nuevos sin perder el scroll de notas
     if(state.detailOpenFor){
       const [sId,aId] = state.detailOpenFor.split("|");
@@ -2819,7 +2954,7 @@ function openPersonTasks(personId){
   byId("personModal").innerHTML = `
     <div class="dm-head">
       <div style="display:flex;align-items:center;gap:12px;">
-        <div class="avatar" style="background:${p.color};width:42px;height:42px;font-size:15px;">${initials(p.name)}</div>
+        <div class="avatar" style="background:${p.color};color:${inkOn(p.color)};width:42px;height:42px;font-size:15px;">${initials(p.name)}</div>
         <div><div class="tag-proc" style="margin-bottom:3px;">${p.role}</div><h3>${p.name}</h3></div>
       </div>
       <button class="dm-close" id="pmClose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
@@ -2855,6 +2990,16 @@ function openPersonTasks(personId){
 function shortLabel(name){
   const parts = name.split(" ");
   return parts.length>1 ? `${parts[0]} ${parts[1][0]}.` : parts[0];
+}
+// Cara de cada nodo del organigrama: foto recortada en círculo con filtro del color elegido, o iniciales sobre el color sólido
+function orgFace(p, x, y, r, key, isRoot){
+  if(usesPhoto(p)){
+    return `<clipPath id="${key}-clip"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath>
+      <image href="${p.photo}" x="${x-r}" y="${y-r}" width="${r*2}" height="${r*2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#${key}-clip)"/>
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${p.color}" style="mix-blend-mode:color;opacity:.78" pointer-events="none"/>
+      <circle cx="${x}" cy="${y}" r="${r}" fill="${p.color}" style="opacity:.16" pointer-events="none"/>`;
+  }
+  return `<text x="${x}" y="${y+(isRoot?5.5:4.5)}" text-anchor="middle" class="org-node-initials${isRoot?' org-node-initials-root':''}" style="fill:${inkOn(p.color)}">${initials(p.name)}</text>`;
 }
 function buildSpiderOrgSVG(counts, idSuffix, ownId){
   const uid = "orgShadow-" + (idSuffix || "dash");
@@ -2903,8 +3048,8 @@ function buildSpiderOrgSVG(counts, idSuffix, ownId){
       <g class="org-node" data-person="${id}">
         ${overloadRing}
         <circle cx="${x}" cy="${y}" r="${rad}" fill="${p.color}" class="org-node-main" filter="url(#${uid})"/>
+        ${orgFace(p, x, y, rad, uid+"-"+id, false)}
         <circle cx="${x}" cy="${y}" r="${rad}" fill="none" stroke="#fff" stroke-width="2.5"/>
-        <text x="${x}" y="${y+4.5}" text-anchor="middle" class="org-node-initials">${initials(p.name)}</text>
         <text x="${x}" y="${y+rad+17}" text-anchor="middle" class="org-node-name">${shortLabel(p.name)}</text>
         <text x="${x}" y="${y+rad+29}" text-anchor="middle" class="org-node-count" fill="${overloaded?'var(--coral)':'var(--text-faint)'}">${c} ${ownId ? (id===ownId ? (c===1?'pendiente':'pendientes') : 'en común') : (c===1?'pendiente':'pendientes')}</text>
         <title>${p.name} — ${p.role}\n${c} tarea${c===1?'':'s'} asignada${c===1?'':'s'}${overloaded?' · posible cuello de botella':''}${p.secondaryUnit?`\nTambién medio tiempo en ${p.secondaryUnit}`:''}</title>
@@ -2916,8 +3061,8 @@ function buildSpiderOrgSVG(counts, idSuffix, ownId){
   const rootNode = `
     <g class="org-node org-node-root" data-person="${rootId}">
       <circle cx="${CX}" cy="${CY}" r="${rootR}" fill="${rootP.color}" filter="url(#${uid})"/>
+      ${orgFace(rootP, CX, CY, rootR, uid+"-"+rootId, true)}
       <circle cx="${CX}" cy="${CY}" r="${rootR}" fill="none" stroke="#fff" stroke-width="3"/>
-      <text x="${CX}" y="${CY+5.5}" text-anchor="middle" class="org-node-initials org-node-initials-root">${initials(rootP.name)}</text>
       <text x="${CX}" y="${CY+rootR+19}" text-anchor="middle" class="org-node-name org-node-name-root">${rootP.name}</text>
       <text x="${CX}" y="${CY+rootR+32}" text-anchor="middle" class="org-node-count">${rootCount} ${ownId ? (rootId===ownId ? (rootCount===1?'pendiente':'pendientes') : 'en común') : (rootCount===1?'pendiente':'pendientes')}</text>
       <title>${rootP.name} — ${rootP.role}\n${rootCount} tarea${rootCount===1?'':'s'} asignada${rootCount===1?'':'s'}</title>
@@ -2973,15 +3118,18 @@ function buildCoverSpiderSVG(){
     const delay = isCore ? 0.05 : 0.25 + order*0.09;
     return `
       <button type="button" class="c-node ${isCore?'c-node--core':''}" data-person="${id}"
-        style="--x:${at.x}%;--y:${at.y}%;--c:${p.color};--ring-c:${p.color}33;--glow-c:${p.color}88;--d:${delay}s;--f:${(order*1.3).toFixed(1)}s;"
+        style="--x:${at.x}%;--y:${at.y}%;--c:${p.color};--ink:${inkOn(p.color)};--ring-c:${p.color}33;--glow-c:${p.color}88;--d:${delay}s;--f:${(order*1.3).toFixed(1)}s;"
         aria-label="Entrar al espacio de ${p.name}, ${p.role}." title="${p.name} · ${p.role}">
-        <span class="c-float"><span class="c-sphere" aria-hidden="true">${initials(p.name)}</span></span>
+        <span class="c-float"><span class="c-sphere" aria-hidden="true">${usesPhoto(p) ? `<img class="c-photo" src="${p.photo}" alt="" draggable="false"><span class="c-tint"></span><span class="c-tint2"></span><span class="c-gloss"></span>` : initials(p.name)}</span></span>
         <span class="c-label">
           <span class="c-name">${p.name}</span>
           <span class="c-role">${p.role}</span>
           ${p.secondaryUnit ? `<span class="c-unit">También en ${p.secondaryUnit}</span>` : ''}
           <span class="c-cta" aria-hidden="true">Entrar a su espacio</span>
         </span>
+      </button><button type="button" class="c-edit ${isCore?'c-edit--core':''}" data-edit-person="${id}"
+        style="--x:${at.x}%;--y:${at.y}%;" aria-label="Cambiar foto, iniciales o color de ${p.name}" title="Foto, iniciales y color">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
       </button>`;
   }
 
@@ -5118,10 +5266,223 @@ function wireNotesFab(){
 /* ================================================================
    12B. PANTALLA DE PORTADA + SELECTOR "VER COMO"
    ================================================================ */
+/* ================================================================
+   EQUIPO · EDITOR DE BURBUJA (portada)
+   Iniciales o foto (recortada aquí mismo) + color. Se guarda en la hoja "Equipo".
+   La foto se guarda como Base64 en UNA celda: Google Sheets admite 50.000 caracteres por celda,
+   así que la imagen se exporta a JPG cuadrado y se comprime hasta quedar bajo ~42.000.
+   ================================================================ */
+const TE_VP = 256;               // tamaño (px) del recuadro de recorte
+const TE_MAX_CHARS = 42000;      // tope de la foto en Base64 (la hoja acepta hasta 50.000)
+const TE = { id:null, mode:"initials", color:"#2F6FDE", savedPhoto:null, img:null, newPhoto:false, removed:false,
+             minScale:1, zoom:1, scale:1, ox:0, oy:0, drag:null, raf:0 };
+
+function ensureTeamEditor(){
+  if(byId("teOverlay")) return;
+  const wrap = document.createElement("div");
+  wrap.className = "te-overlay"; wrap.id = "teOverlay"; wrap.hidden = true;
+  wrap.innerHTML = `
+    <div class="te-card" role="dialog" aria-modal="true" aria-labelledby="teTitle">
+      <div class="te-head">
+        <div><div class="te-eyebrow">Personalizar burbuja</div><h3 id="teTitle"></h3></div>
+        <button type="button" class="te-x" id="teClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="te-body">
+        <div class="te-seg" role="group" aria-label="Qué mostrar en la burbuja">
+          <button type="button" data-te-mode="initials">Iniciales</button>
+          <button type="button" data-te-mode="photo">Foto</button>
+        </div>
+        <div class="te-stage">
+          <div class="te-prev-col">
+            <div class="te-prev c-sphere" id="tePrev" style="--s:128px;">
+              <span id="tePrevInitials"></span>
+              <canvas class="c-photo" id="tePrevCanvas" width="256" height="256" hidden></canvas>
+              <img class="c-photo" id="tePrevImg" alt="" hidden draggable="false">
+              <span class="c-tint" id="tePrevT1" hidden></span><span class="c-tint2" id="tePrevT2" hidden></span><span class="c-gloss" id="tePrevT3" hidden></span>
+            </div>
+            <div class="te-prev-cap">Así se ve en la portada</div>
+          </div>
+          <div class="te-crop-col" id="teCropCol" hidden>
+            <div class="te-crop" id="teCrop"><canvas id="teCanvas" width="${TE_VP}" height="${TE_VP}"></canvas><div class="te-mask"></div></div>
+            <div class="te-zoom"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M8.5 11h5M21 21l-5-5"/></svg>
+              <input type="range" id="teZoom" min="100" max="300" value="100" aria-label="Acercar o alejar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="6"/><path d="M8.5 11h5M11 8.5v5M21 21l-5-5"/></svg></div>
+            <div class="te-crop-hint">Arrastra para encuadrar · usa el control para acercar</div>
+          </div>
+        </div>
+        <div class="te-photo-row" id="tePhotoRow" hidden>
+          <label class="te-btn"><input type="file" id="teFile" accept="image/*" hidden><span id="teFileLabel">Subir foto</span></label>
+          <button type="button" class="te-link" id="teRemove" hidden>Quitar foto</button>
+        </div>
+        <div class="te-colors">
+          <div class="te-label">Color <span>(sobre la foto actúa como filtro)</span></div>
+          <div class="te-swatches" id="teSwatches"></div>
+          <label class="te-custom" title="Elegir otro color"><input type="color" id="teColor"><span>Otro color</span></label>
+        </div>
+      </div>
+      <div class="te-foot">
+        <span class="te-note">Se guarda en el Excel y lo ve todo el equipo.</span>
+        <div class="te-actions"><button type="button" class="te-btn te-btn--ghost" id="teCancel">Cancelar</button><button type="button" class="te-btn te-btn--primary" id="teSave">Guardar</button></div>
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+
+  wrap.addEventListener("mousedown", e=>{ if(e.target===wrap) closeTeamEditor(); });
+  byId("teClose").addEventListener("click", closeTeamEditor);
+  byId("teCancel").addEventListener("click", closeTeamEditor);
+  byId("teSave").addEventListener("click", teSave);
+  wrap.querySelectorAll("[data-te-mode]").forEach(b=> b.addEventListener("click", ()=>{ TE.mode = b.dataset.teMode; teRefresh(); }));
+  byId("teFile").addEventListener("change", e=>{ const f = e.target.files && e.target.files[0]; if(f) teLoadFile(f); e.target.value = ""; });
+  byId("teRemove").addEventListener("click", ()=>{
+    TE.img = null; TE.newPhoto = false; TE.savedPhoto = null; TE.removed = true; TE.mode = "initials"; teRefresh();
+  });
+  byId("teColor").addEventListener("input", e=>{ TE.color = e.target.value; teRefresh(); });
+  byId("teZoom").addEventListener("input", e=> teSetZoom(Number(e.target.value)/100));
+  const crop = byId("teCrop");
+  crop.addEventListener("pointerdown", e=>{ if(!TE.img) return; TE.drag = { x:e.clientX, y:e.clientY }; crop.setPointerCapture(e.pointerId); crop.classList.add("dragging"); });
+  crop.addEventListener("pointermove", e=>{
+    if(!TE.drag) return;
+    TE.ox += e.clientX - TE.drag.x; TE.oy += e.clientY - TE.drag.y; TE.drag = { x:e.clientX, y:e.clientY };
+    teClamp(); teDraw();
+  });
+  const endDrag = ()=>{ TE.drag = null; crop.classList.remove("dragging"); };
+  crop.addEventListener("pointerup", endDrag); crop.addEventListener("pointercancel", endDrag);
+  crop.addEventListener("wheel", e=>{
+    if(!TE.img) return; e.preventDefault();
+    const z = Math.max(1, Math.min(3, TE.zoom - e.deltaY*0.0015));
+    byId("teZoom").value = Math.round(z*100); teSetZoom(z);
+  }, { passive:false });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !byId("teOverlay").hidden) closeTeamEditor(); });
+}
+
+function openTeamEditor(id){
+  const p = TEAM[id]; if(!p) return;
+  ensureTeamEditor();
+  Object.assign(TE, { id:id, mode: usesPhoto(p) ? "photo" : "initials", color: p.color, savedPhoto: p.photo || null,
+                      img:null, newPhoto:false, removed:false, zoom:1, drag:null });
+  byId("teTitle").textContent = p.name;
+  byId("teZoom").value = 100;
+  const sw = byId("teSwatches");
+  sw.innerHTML = TEAM_PALETTE.map(c=> `<button type="button" class="te-sw" data-te-color="${c}" style="background:${c}" aria-label="Color ${c}"></button>`).join("");
+  sw.querySelectorAll("[data-te-color]").forEach(b=> b.addEventListener("click", ()=>{ TE.color = b.dataset.teColor; teRefresh(); }));
+  byId("teOverlay").hidden = false;
+  teRefresh();
+  setTimeout(()=>{ const s = byId("teSave"); if(s) s.focus(); }, 30);
+}
+function closeTeamEditor(){ const o = byId("teOverlay"); if(o) o.hidden = true; TE.img = null; TE.drag = null; }
+
+function teLoadFile(file){
+  if(!/^image\//.test(file.type)){ showToast("Ese archivo no es una imagen. Prueba con una foto JPG o PNG.", 5000); return; }
+  if(file.size > 25*1024*1024){ showToast("La imagen es muy grande (máximo 25 MB).", 5000); return; }
+  const url = URL.createObjectURL(file), im = new Image();
+  im.onload = ()=>{
+    URL.revokeObjectURL(url);
+    TE.img = im; TE.newPhoto = true; TE.removed = false; TE.mode = "photo"; TE.zoom = 1;
+    TE.minScale = Math.max(TE_VP/im.naturalWidth, TE_VP/im.naturalHeight);
+    TE.scale = TE.minScale;
+    TE.ox = (TE_VP - im.naturalWidth*TE.scale)/2; TE.oy = (TE_VP - im.naturalHeight*TE.scale)/2;
+    byId("teZoom").value = 100;
+    teRefresh();
+  };
+  im.onerror = ()=>{ URL.revokeObjectURL(url); showToast("No pude leer esa imagen. Prueba con una foto JPG o PNG.", 6000); };
+  im.src = url;
+}
+function teClamp(){
+  const w = TE.img.naturalWidth*TE.scale, h = TE.img.naturalHeight*TE.scale;
+  TE.ox = Math.min(0, Math.max(TE_VP - w, TE.ox));
+  TE.oy = Math.min(0, Math.max(TE_VP - h, TE.oy));
+}
+function teSetZoom(z){
+  if(!TE.img) return;
+  const c = TE_VP/2, old = TE.scale;
+  TE.zoom = z; TE.scale = TE.minScale*z;
+  TE.ox = c - (c - TE.ox)*(TE.scale/old); TE.oy = c - (c - TE.oy)*(TE.scale/old);
+  teClamp(); teDraw();
+}
+function teDraw(){
+  if(TE.raf) return;
+  TE.raf = requestAnimationFrame(()=>{
+    TE.raf = 0;
+    if(!TE.img) return;
+    const c = byId("teCanvas").getContext("2d");
+    c.fillStyle = "#fff"; c.fillRect(0,0,TE_VP,TE_VP);
+    c.drawImage(TE.img, TE.ox, TE.oy, TE.img.naturalWidth*TE.scale, TE.img.naturalHeight*TE.scale);
+    const pc = byId("tePrevCanvas");
+    if(pc && !pc.hidden){ const pg = pc.getContext("2d"); pg.fillStyle = "#fff"; pg.fillRect(0,0,pc.width,pc.height); pg.drawImage(byId("teCanvas"), 0,0, pc.width, pc.height); }
+  });
+}
+// Exporta el recuadro a JPG cuadrado y lo comprime hasta que quepa en una celda
+function teExport(){
+  const sw = TE_VP/TE.scale, sx = -TE.ox/TE.scale, sy = -TE.oy/TE.scale;
+  for(const S of [256, 224, 192, 160, 128]){
+    const cv = document.createElement("canvas"); cv.width = cv.height = S;
+    const g = cv.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0,0,S,S);
+    g.imageSmoothingQuality = "high";
+    g.drawImage(TE.img, sx, sy, sw, sw, 0, 0, S, S);
+    for(const q of [0.86, 0.78, 0.7, 0.62, 0.54, 0.46, 0.38]){
+      const url = cv.toDataURL("image/jpeg", q);
+      if(url.length <= TE_MAX_CHARS) return url;
+    }
+  }
+  return null;
+}
+
+function teRefresh(){
+  const p = TEAM[TE.id]; if(!p) return;
+  const photoMode = TE.mode === "photo";
+  const hasNew = !!TE.img, hasSaved = !!TE.savedPhoto;
+  document.querySelectorAll("#teOverlay [data-te-mode]").forEach(b=> b.classList.toggle("on", b.dataset.teMode === TE.mode));
+  // burbuja de vista previa
+  const prev = byId("tePrev");
+  prev.style.setProperty("--c", TE.color); prev.style.setProperty("--ink", inkOn(TE.color));
+  prev.style.setProperty("--ring-c", TE.color+"33"); prev.style.setProperty("--glow-c", TE.color+"88");
+  const showCanvas = photoMode && hasNew, showImg = photoMode && !hasNew && hasSaved;
+  byId("tePrevInitials").textContent = (photoMode && (hasNew || hasSaved)) ? "" : initials(p.name);
+  byId("tePrevCanvas").hidden = !showCanvas;
+  const im = byId("tePrevImg"); im.hidden = !showImg; if(showImg) im.src = TE.savedPhoto;
+  ["tePrevT1","tePrevT2","tePrevT3"].forEach(id=> byId(id).hidden = !(showCanvas || showImg));
+  // recorte y botones
+  byId("teCropCol").hidden = !(photoMode && hasNew);
+  byId("tePhotoRow").hidden = !photoMode;
+  byId("teFileLabel").textContent = (hasNew || hasSaved) ? "Cambiar foto" : "Subir foto";
+  byId("teRemove").hidden = !(photoMode && (hasNew || hasSaved));
+  // color
+  document.querySelectorAll("#teSwatches .te-sw").forEach(b=> b.classList.toggle("on", b.dataset.teColor.toLowerCase() === TE.color.toLowerCase()));
+  byId("teColor").value = TE.color;
+  // guardar solo si hay algo que mostrar
+  byId("teSave").disabled = photoMode && !hasNew && !hasSaved;
+  byId("teSave").title = byId("teSave").disabled ? "Sube una foto o elige Iniciales" : "";
+  if(hasNew) teDraw();
+}
+
+function teSave(){
+  const id = TE.id, p = TEAM[id]; if(!p) return;
+  let mode = TE.mode, photoAction = "keep", photo = null;
+  if(TE.img && TE.newPhoto && mode === "photo"){
+    photo = teExport();
+    if(!photo){ showToast("No logré comprimir la foto lo suficiente. Prueba con otra imagen o acércala más.", 7000); return; }
+    photoAction = "set";
+  } else if(mode === "photo" && !TE.savedPhoto){
+    showToast("Sube una foto o elige Iniciales.", 4000); return;
+  }
+  if(TE.removed && photoAction !== "set") photoAction = "remove";
+  // se ve al instante; la hoja lo confirma en segundos
+  p.color = TE.color;
+  if(photoAction === "set"){ p.photo = photo; TEAM_REV[id] = ""; }
+  if(photoAction === "remove"){ p.photo = null; TEAM_REV[id] = ""; }
+  p.photoMode = (mode === "photo" && p.photo) ? "photo" : "initials";
+  saveTeamCache();
+  closeTeamEditor();
+  renderCoverSpider();
+  if(state.dataLoaded){ try{ renderAll(); }catch(e){} }
+  postToSheet({ action:"updateTeamProfile", person:id, color:p.color, mode:(p.photoMode==="photo"?"foto":"iniciales"), photoAction:photoAction, photo:photo })
+    .then(r=>{ if(r && r.ok && !r.local) showToast("Listo: el cambio ya lo ve todo el equipo.", 3500); });
+}
+
 function renderViewAsChip(){
   const id = state.viewingAs;
   const p = id ? personOf(id) : TEAM.cd;
   byId("viewAsAvatar").style.background = p.color;
+  byId("viewAsAvatar").style.color = inkOn(p.color);
   byId("viewAsAvatar").textContent = initials(p.name);
   byId("viewAsName").textContent = id ? p.name : "Todo el equipo";
   byId("viewAsRole").textContent = id ? "Viendo sus tareas · Cambiar" : "Cambiar de persona";
@@ -5148,6 +5509,9 @@ function renderCoverSpider(){
   byId("coverSpider").innerHTML = buildCoverSpiderSVG();
   byId("coverSpider").querySelectorAll("[data-person]").forEach(el=>{
     el.addEventListener("click", ()=> enterApp(el.dataset.person));
+  });
+  byId("coverSpider").querySelectorAll("[data-edit-person]").forEach(el=>{
+    el.addEventListener("click", e=>{ e.stopPropagation(); openTeamEditor(el.dataset.editPerson); });
   });
   renderCoverContext();
   wireCoverHover();
