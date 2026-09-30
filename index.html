@@ -1794,6 +1794,44 @@ details.dp-move .move-box{margin-top:10px;}
 .te-note{font-size:11.5px;color:var(--text-faint);}
 .te-actions{display:flex;gap:8px;margin-left:auto;}
 @media (max-width:520px){ .te-stage{gap:14px;} .te-foot{flex-direction:column-reverse;align-items:stretch;} .te-actions{margin-left:0;} .te-actions .te-btn{flex:1;} }
+
+/* ===== Vista completa: fila de carga + post-its ===== */
+.panel-load-row{margin-bottom:6px;}
+.load-row{display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,4vw,56px);padding:10px 0 4px;flex-wrap:wrap;}
+.load-person{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;cursor:pointer;font-family:inherit;padding:4px 6px;border-radius:14px;transition:transform .15s;}
+.load-person:hover{transform:translateY(-3px);}
+.lr-circle{width:84px;height:84px;border-radius:50%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(14,27,51,.22);}
+.load-person--root .lr-circle{width:104px;height:104px;border-width:3.5px;}
+.lr-circle img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.lr-tint{position:absolute;inset:0;mix-blend-mode:color;opacity:.78;pointer-events:none;}
+.lr-ini{position:relative;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:26px;}
+.load-person--root .lr-ini{font-size:32px;}
+.lr-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12.5px;color:var(--text);margin-top:4px;}
+.load-person--root .lr-name{font-size:13.5px;}
+.lr-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);}
+
+.postit-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;align-items:start;margin-bottom:24px;}
+.postit{--pi:#999;position:relative;background:color-mix(in srgb,var(--pi) 20%,#fff);border-top:5px solid var(--pi);border-radius:4px 4px 10px 4px;padding:12px 14px 14px;box-shadow:0 6px 14px rgba(14,27,51,.13),0 1px 2px rgba(14,27,51,.08);}
+.postit:hover{z-index:30;}
+.pi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
+.pi-title{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25;color:#1E2A44;}
+.pi-title:hover{text-decoration:underline;}
+.pi-people{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:3px;flex-shrink:0;max-width:45%;}
+.pi-ava{position:relative;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid #fff;box-shadow:0 1px 2px rgba(14,27,51,.2);}
+.pi-ava i{position:absolute;right:-5px;bottom:-5px;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:#1E2A44;color:#fff;font-style:normal;font-size:8.5px;line-height:14px;text-align:center;font-family:'JetBrains Mono',monospace;}
+.pi-subs{display:flex;flex-direction:column;gap:5px;}
+.pi-sub{position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;background:rgba(255,255,255,.6);border:0;border-radius:6px;padding:6px 9px;cursor:pointer;font-family:inherit;font-size:12px;color:#1E2A44;}
+.pi-sub:hover{background:#fff;}
+.pi-sub-c{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#5B6680;flex-shrink:0;}
+.pi-pop{display:none;position:absolute;left:0;top:calc(100% + 4px);z-index:40;width:290px;max-width:80vw;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 26px rgba(14,27,51,.22);padding:10px 12px;cursor:default;}
+.pi-sub:hover .pi-pop,.pi-sub:focus-visible .pi-pop{display:block;}
+.pi-pop-t{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);margin-bottom:6px;}
+.pi-task{padding:5px 0;border-top:1px solid var(--line-soft);}
+.pi-task:first-of-type{border-top:0;}
+.pi-task-n{display:block;font-size:12px;font-weight:600;color:var(--text);}
+.pi-task-m{display:block;font-size:10.5px;color:var(--text-muted);}
+.pi-more{font-size:11px;color:var(--text-muted);padding-top:4px;}
+.pi-empty{font-size:12px;color:#5B6680;}
 </style>
 </head>
 <body>
@@ -2946,7 +2984,7 @@ function openPersonTasks(personId){
   }).join("") : `<div class="dm-empty">${(!team && !isOwn) ? `${escHtml_(p.name)} y tú no comparten tareas pendientes por ahora.` : `${escHtml_(p.name)} no tiene tareas pendientes por ahora.`}</div>`;
 
   const nT = shown.length, nG = rows.length;
-  const scopeTxt = isAnnual ? "Vista anual · todas las tareas" : "Vista mensual · 30 días atrás y adelante";
+  const scopeTxt = isAnnual ? "Vista completa · todas las tareas" : "Vista mensual · 30 días atrás y adelante";
   const grp = `${nG} ${plural(nG,'gran tema','grandes temas')}`;
   const subtitle = (!team && !isOwn)
     ? `Comparten ${nT} ${plural(nT,'tarea pendiente','tareas pendientes')} en ${grp} · ${scopeTxt}`
@@ -3170,6 +3208,75 @@ function buildCoverSpiderSVG(){
     </div>`;
 }
 
+/* ================================================================
+   6A4. VISTA COMPLETA — círculos de carga en una fila + tablero de post-its
+   ================================================================ */
+// Orden fijo de la fila de carga; las personas nuevas van al final
+const LOAD_ROW_ORDER = ["jd","sf","cd","ad","ag"];
+
+function buildLoadRowHtml(counts, ownId){
+  const ids = LOAD_ROW_ORDER.filter(id=>TEAM[id]).concat(Object.keys(TEAM).filter(id=>!LOAD_ROW_ORDER.includes(id)));
+  const root = Object.entries(TEAM).find(([,p])=>!p.reportsTo);
+  const rootId = root ? root[0] : "cd";
+  return `<div class="load-row">` + ids.map(id=>{
+    const p = TEAM[id], c = counts[id]||0;
+    const unit = ownId ? (id===ownId ? (c===1?'pendiente':'pendientes') : 'en común') : (c===1?'pendiente':'pendientes');
+    const face = usesPhoto(p)
+      ? `<img src="${p.photo}" alt="" draggable="false"><span class="lr-tint" style="background:${p.color}"></span>`
+      : `<span class="lr-ini" style="color:${inkOn(p.color)}">${initials(p.name)}</span>`;
+    return `
+      <button type="button" class="load-person ${id===rootId?'load-person--root':''}" data-person="${id}" title="${escHtml_(p.name)} — ${escHtml_(p.role)}\n${c} tarea${c===1?'':'s'} pendiente${c===1?'':'s'}">
+        <span class="lr-circle" style="background:${p.color}">${face}</span>
+        <span class="lr-name">${escHtml_(shortLabel(p.name))}</span>
+        <span class="lr-count">${c} ${unit}</span>
+      </button>`;
+  }).join("") + `</div>`;
+}
+
+// Tablero de post-its: un post-it por gran tema, con sus subtemas y quienes lo apoyan
+function buildPostItBoardHtml(acts, viewerOnly){
+  const pending = t=> t.progress<100 && t.status!=="completada";
+  const bySub = new Map();
+  acts.forEach(a=>{ if(!bySub.has(a.subthemeId)) bySub.set(a.subthemeId, []); bySub.get(a.subthemeId).push(a); });
+
+  const notes = PROCESSES.map(pr=>{
+    const tasks = acts.filter(a=>a.processId===pr.id);
+    if(viewerOnly && !tasks.length) return "";
+    // Quién apoya: todas las tareas (completadas o no); primero quien tiene más
+    const per = {};
+    tasks.forEach(a=> a.responsible.forEach(r=>{ if(TEAM[r]) per[r] = (per[r]||0)+1; }));
+    const people = Object.entries(per).sort((x,y)=> y[1]-x[1] || Object.keys(TEAM).indexOf(x[0])-Object.keys(TEAM).indexOf(y[0]));
+    const lead = people.length ? TEAM[people[0][0]].color : pr.color;
+    const circles = people.map(([id,n])=>`<span class="pi-ava" style="background:${TEAM[id].color};color:${inkOn(TEAM[id].color)}" title="${escHtml_(TEAM[id].name)} · ${n} tarea${n===1?'':'s'}">${initials(TEAM[id].name)}<i>${n}</i></span>`).join("");
+
+    const subs = SUBTHEMES.filter(s=>s.processId===pr.id && (!viewerOnly || (bySub.get(s.id)||[]).length));
+    const subsHtml = subs.map(s=>{
+      const all = bySub.get(s.id) || [];
+      const pend = all.filter(pending).sort((x,y)=> String(x.end).localeCompare(String(y.end)));
+      const shown = pend.slice(0,8);
+      const pop = pend.length
+        ? `<div class="pi-pop-t">${pend.length} pendiente${pend.length===1?'':'s'}</div>` + shown.map(t=>`
+            <div class="pi-task"><span class="pi-task-n">${escHtml_(t.name)}</span><span class="pi-task-m">vence ${fmtShort(t.end)} · ${t.progress}%</span></div>`).join("")
+          + (pend.length>shown.length ? `<div class="pi-more">+ ${pend.length-shown.length} más</div>` : "")
+        : `<div class="pi-pop-t">Sin tareas pendientes</div>`;
+      return `<button type="button" class="pi-sub" data-goto-sub="${pr.id}|${s.id}">
+        <span class="pi-sub-n">${escHtml_(s.name)}</span><span class="pi-sub-c">${pend.length}</span>
+        <div class="pi-pop">${pop}</div>
+      </button>`;
+    }).join("") || `<div class="pi-empty">Sin subtemas</div>`;
+
+    return `<div class="postit" style="--pi:${lead};">
+      <div class="pi-head">
+        <button type="button" class="pi-title" data-goto-proc="${pr.id}" title="Ir a ${escHtml_(pr.name)}">${escHtml_(pr.name)}</button>
+        <div class="pi-people">${circles}</div>
+      </div>
+      <div class="pi-subs">${subsHtml}</div>
+    </div>`;
+  }).join("");
+
+  return `<div class="postit-board">${notes || '<div class="empty-note">Sin grandes temas con los filtros actuales.</div>'}</div>`;
+}
+
 function computeKPIs(list){
   const total = list.length;
   const done = list.filter(a=>a.status==="completada").length;
@@ -3183,6 +3290,20 @@ function computeKPIs(list){
   return { total, done, risk, dueSoon, avgProgress };
 }
 
+// Lleva a la sección de un gran tema y, si se indica, despliega ese subtema para ver todas sus tareas
+function gotoProcess(procId, subId){
+  if(state.selectedProcess !== procId && typeof resetProcessEditState==="function") resetProcessEditState();
+  state.selectedProcess = procId;
+  state.view = "processDetail";
+  if(subId) state.hierOpenAct[subId] = true;
+  setActiveNav();
+  renderAll();
+  if(subId){
+    const el = byId("viewWrap").querySelector(`[data-toggle-act="${subId}"]`);
+    if(el) el.scrollIntoView({ block:"center" });
+  }
+}
+
 function renderDashboard(){
   saveNav();
   const _scrollPos = byId("viewWrap") ? byId("viewWrap").scrollTop : 0;
@@ -3193,7 +3314,7 @@ function renderDashboard(){
   const scopeToggleHtml = `
     <div class="scope-toggle">
       <button class="scope-btn ${!isAnnual?'active':''}" data-scope="monthly">Vista mensual <span>30 días atrás y adelante</span></button>
-      <button class="scope-btn ${isAnnual?'active':''}" data-scope="annual">Vista anual <span>todas las tareas</span></button>
+      <button class="scope-btn ${isAnnual?'active':''}" data-scope="annual">Vista completa <span>todas las tareas</span></button>
     </div>`;
 
   const kpiCards = [
@@ -3262,7 +3383,18 @@ function renderDashboard(){
     </div>`;
   }).join("") : `<div class="empty-note">No hay tareas próximas a vencer con los filtros actuales.</div>`;
 
-  byId("viewWrap").innerHTML = `
+  const fullHtml = `
+    ${scopeToggleHtml}
+    <div class="kpi-grid">${kpiHtml}</div>
+    <div class="panel panel-load-row">
+      <div class="panel-head"><div class="panel-title">Carga por responsable</div><div class="panel-sub">Tareas pendientes (sin llegar al 100%) · clic en una persona para ver en qué grandes temas trabaja</div></div>
+      ${buildLoadRowHtml(respCounts, teamScope() ? null : state.viewingAs)}
+    </div>
+    <div class="section-title-page" style="margin-top:22px;"><h2 style="font-size:15px;">Grandes temas</h2><span>Quienes apoyan van junto al título (primero quien tiene más tareas) · pasa el mouse por un subtema para ver sus pendientes · clic para abrirlo</span></div>
+    ${buildPostItBoardHtml(flattenActivities().filter(a=> !viewerOnly || a.responsible.includes(viewerOnly)), viewerOnly)}
+  `;
+
+  byId("viewWrap").innerHTML = isAnnual ? fullHtml : `
     ${scopeToggleHtml}
     <div class="kpi-grid">${kpiHtml}</div>
 
@@ -3303,6 +3435,12 @@ function renderDashboard(){
   });
   byId("viewWrap").querySelectorAll("[data-person]").forEach(el=>{
     el.addEventListener("click", ()=> openPersonTasks(el.dataset.person));
+  });
+  byId("viewWrap").querySelectorAll("[data-goto-proc]").forEach(el=>{
+    el.addEventListener("click", ()=> gotoProcess(el.dataset.gotoProc));
+  });
+  byId("viewWrap").querySelectorAll("[data-goto-sub]").forEach(el=>{
+    el.addEventListener("click", ()=>{ const [pId,sId] = el.dataset.gotoSub.split("|"); gotoProcess(pId, sId); });
   });
   byId("viewWrap").querySelectorAll("[data-scope]").forEach(el=>{
     el.addEventListener("click", ()=>{
@@ -4898,7 +5036,7 @@ function iconArchive(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="cur
    11. NAV / VIEW SWITCH
    ================================================================ */
 const VIEW_META = {
-  dashboard:{ title:"Dashboard", sub:"Elige vista mensual (30 días) o anual (todas las tareas)" },
+  dashboard:{ title:"Dashboard", sub:"Elige vista mensual (30 días) o completa (todas las tareas)" },
   timeline:{ title:"Cronograma", sub:"Distribución de tareas en los 12 meses de 2026" },
   pending:{ title:"Pendientes", sub:"Todo lo que sigue abierto, ordenado por deadline y prioridad" },
   processDetail:{ title:"Gran tema", sub:"" },
