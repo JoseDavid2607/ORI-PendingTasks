@@ -1796,8 +1796,9 @@ details.dp-move .move-box{margin-top:10px;}
 @media (max-width:520px){ .te-stage{gap:14px;} .te-foot{flex-direction:column-reverse;align-items:stretch;} .te-actions{margin-left:0;} .te-actions .te-btn{flex:1;} }
 
 /* ===== Vista completa: fila de carga + post-its ===== */
-.panel-load-row{margin-bottom:6px;}
-.load-row{display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,4vw,56px);padding:10px 0 4px;flex-wrap:wrap;}
+.load-block{margin-bottom:4px;}
+.load-block .panel-title{margin-bottom:2px;}
+.load-row{display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,4vw,56px);padding:4px 0 0;flex-wrap:wrap;}
 .load-person{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:0;cursor:pointer;font-family:inherit;padding:4px 6px;border-radius:14px;transition:transform .15s;}
 .load-person:hover{transform:translateY(-3px);}
 .lr-circle{width:84px;height:84px;border-radius:50%;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(14,27,51,.22);}
@@ -1810,8 +1811,8 @@ details.dp-move .move-box{margin-top:10px;}
 .load-person--root .lr-name{font-size:13.5px;}
 .lr-count{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-faint);}
 
-.postit-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;align-items:start;margin-bottom:24px;}
-.postit{--pi:#999;position:relative;background:color-mix(in srgb,var(--pi) 20%,#fff);border-top:5px solid var(--pi);border-radius:4px 4px 10px 4px;padding:12px 14px 14px;box-shadow:0 6px 14px rgba(14,27,51,.13),0 1px 2px rgba(14,27,51,.08);}
+.postit-board{column-width:270px;column-gap:16px;margin-bottom:24px;}
+.postit{--pi:#999;position:relative;break-inside:avoid;margin-bottom:16px;background:color-mix(in srgb,var(--pi) 20%,#fff);border-top:5px solid var(--pi);border-radius:4px 4px 10px 4px;padding:12px 14px 14px;box-shadow:0 6px 14px rgba(14,27,51,.13),0 1px 2px rgba(14,27,51,.08);}
 .postit:hover{z-index:30;}
 .pi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:10px;}
 .pi-title{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14.5px;line-height:1.25;color:#1E2A44;}
@@ -3386,11 +3387,11 @@ function renderDashboard(){
   const fullHtml = `
     ${scopeToggleHtml}
     <div class="kpi-grid">${kpiHtml}</div>
-    <div class="panel panel-load-row">
-      <div class="panel-head"><div class="panel-title">Carga por responsable</div><div class="panel-sub">Tareas pendientes (sin llegar al 100%) · clic en una persona para ver en qué grandes temas trabaja</div></div>
+    <div class="load-block">
+      <div class="panel-title">Carga por responsable</div>
       ${buildLoadRowHtml(respCounts, teamScope() ? null : state.viewingAs)}
     </div>
-    <div class="section-title-page" style="margin-top:22px;"><h2 style="font-size:15px;">Grandes temas</h2><span>Quienes apoyan van junto al título (primero quien tiene más tareas) · pasa el mouse por un subtema para ver sus pendientes · clic para abrirlo</span></div>
+    <div class="section-title-page" style="margin-top:20px;"><h2 style="font-size:15px;">Grandes temas</h2><span>Quienes apoyan van junto al título (primero quien tiene más tareas) · pasa el mouse por un subtema para ver sus pendientes · clic para abrirlo</span></div>
     ${buildPostItBoardHtml(flattenActivities().filter(a=> !viewerOnly || a.responsible.includes(viewerOnly)), viewerOnly)}
   `;
 
