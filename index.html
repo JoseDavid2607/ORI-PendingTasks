@@ -1833,6 +1833,27 @@ details.dp-move .move-box{margin-top:10px;}
 .pi-task-m{display:block;font-size:10.5px;color:var(--text-muted);}
 .pi-more{font-size:11px;color:var(--text-muted);padding-top:4px;}
 .pi-empty{font-size:12px;color:#5B6680;}
+
+/* Vista completa: KPIs compactos junto al selector de vista, y post-its un poco más pequeños */
+.full-top{display:flex;align-items:center;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+.full-top .scope-toggle{margin-bottom:0;flex-shrink:0;}
+.kpi-compact{flex:1 1 420px;grid-template-columns:repeat(4,minmax(0,1fr)) !important;gap:8px !important;margin-bottom:0 !important;}
+.kpi-compact .kpi-card{padding:7px 10px;display:grid;grid-template-columns:auto 1fr;grid-template-areas:"v i" "l l";align-items:center;column-gap:8px;}
+.kpi-compact .kpi-top{grid-area:i;justify-self:end;margin:0;}
+.kpi-compact .kpi-icon{width:22px;height:22px;border-radius:6px;}
+.kpi-compact .kpi-icon svg{width:12px;height:12px;}
+.kpi-compact .kpi-value{grid-area:v;font-size:19px;}
+.kpi-compact .kpi-label{grid-area:l;font-size:10px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.postit-board{column-width:235px;column-gap:12px;}
+.postit{padding:9px 11px 11px;margin-bottom:12px;}
+.pi-head{margin-bottom:7px;}
+.pi-title{font-size:13px;}
+.pi-ava{width:22px;height:22px;font-size:9px;}
+.pi-ava i{min-width:12px;height:12px;font-size:7.5px;line-height:12px;right:-4px;bottom:-4px;}
+.pi-subs{gap:4px;}
+.pi-sub{font-size:11px;padding:4px 8px;}
+.pi-sub-c{font-size:9.5px;}
+@media (max-width:760px){ .full-top{flex-direction:column;align-items:stretch;} .kpi-compact{flex-basis:auto;grid-template-columns:repeat(2,minmax(0,1fr)) !important;} }
 </style>
 </head>
 <body>
@@ -2949,7 +2970,7 @@ function openPersonTasks(personId){
   let shown = flattenActivities().filter(t=> (isAnnual || inRollingWindow(t)) && isPend(t) && t.responsible.includes(personId));
   // Individual: de los demás solo se cuentan las tareas que se comparten con quien está viendo
   if(!team && !isOwn) shown = shown.filter(t=> t.responsible.includes(viewer));
-  const expandable = team;   // solo en "todo el equipo" se pueden ver las tareas de cada quien
+  const expandable = true;   // en todas las vistas el gran tema se despliega para ver las tareas (ocultas por defecto)
 
   const perProc = new Map();
   shown.forEach(t=>{ if(!perProc.has(t.processId)) perProc.set(t.processId, []); perProc.get(t.processId).push(t); });
@@ -3385,8 +3406,10 @@ function renderDashboard(){
   }).join("") : `<div class="empty-note">No hay tareas próximas a vencer con los filtros actuales.</div>`;
 
   const fullHtml = `
-    ${scopeToggleHtml}
-    <div class="kpi-grid">${kpiHtml}</div>
+    <div class="full-top">
+      ${scopeToggleHtml}
+      <div class="kpi-grid kpi-compact">${kpiHtml}</div>
+    </div>
     <div class="load-block">
       <div class="panel-title">Carga por responsable</div>
       ${buildLoadRowHtml(respCounts, teamScope() ? null : state.viewingAs)}
