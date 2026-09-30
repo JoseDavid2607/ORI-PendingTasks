@@ -1673,6 +1673,7 @@ button.pgt-row:hover{background:var(--canvas);}
 .pgt-chev{width:14px;height:14px;flex-shrink:0;color:var(--text-faint);transition:transform .15s;}
 .pgt-row.open .pgt-chev{transform:rotate(90deg);}
 .pgt-tasks{padding:2px 0 10px 34px;display:flex;flex-direction:column;gap:2px;}
+.pgt-tasks[hidden]{display:none;}
 .pgt-task{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:8px 10px;border-radius:10px;background:none;border:0;cursor:pointer;font:inherit;color:inherit;}
 .pgt-task:hover{background:var(--blue-tint);}
 .pgt-task-name{font-size:12.5px;font-weight:600;}
@@ -3030,9 +3031,12 @@ function openPersonTasks(personId){
     btn.addEventListener("click", ()=>{
       const box = byId("pgtTasks"+btn.dataset.pgtToggle);
       const open = box.hasAttribute("hidden");
-      if(open) box.removeAttribute("hidden"); else box.setAttribute("hidden","");
-      btn.setAttribute("aria-expanded", open ? "true" : "false");
-      btn.classList.toggle("open", open);
+      // Acordeón: al abrir un gran tema se cierran los demás
+      byId("personModal").querySelectorAll("[data-pgt-toggle]").forEach(b=>{
+        const bx = byId("pgtTasks"+b.dataset.pgtToggle);
+        bx.setAttribute("hidden",""); b.setAttribute("aria-expanded","false"); b.classList.remove("open");
+      });
+      if(open){ box.removeAttribute("hidden"); btn.setAttribute("aria-expanded","true"); btn.classList.add("open"); }
     });
   });
   byId("personModal").querySelectorAll("[data-open-task]").forEach(btn=>{
