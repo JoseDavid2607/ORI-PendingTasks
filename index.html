@@ -2279,6 +2279,14 @@ function teamScope(){ return !state.viewingAs || (state.viewingAs==="cd" && stat
 function sortedByStart(acts){
   return acts.slice().sort((a,b)=> String(a.start).localeCompare(String(b.start)) || String(a.end).localeCompare(String(b.end)));
 }
+// Subtemas: van según la fecha de inicio más temprana de sus tareas (sin tareas, al final)
+function subFirstStart(sub, acts){
+  const a = acts || sub.activities;
+  return a.length ? a.reduce((m,x)=> String(x.start)<m ? String(x.start) : m, String(a[0].start)) : "9999-99-99";
+}
+function sortSubsByStart(subs, actsOf){
+  return subs.slice().sort((x,y)=> subFirstStart(x, actsOf&&actsOf(x)).localeCompare(subFirstStart(y, actsOf&&actsOf(y))) || String(x.name).localeCompare(String(y.name)));
+}
 function subOfTask(taskId){ return SUBTHEMES.find(sb=> sb.activities.some(a=> a.id===taskId)); }
 const escHtml_ = v => String(v==null?"":v).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // Una tarea sin terminar cuya fecha fin ya pasó está vencida, aunque en la hoja nadie haya cambiado su estado.
@@ -3287,7 +3295,7 @@ function buildPostItBoardHtml(acts, viewerOnly){
     const lead = people.length ? TEAM[people[0][0]].color : pr.color;
     const circles = people.map(([id,n])=>`<span class="pi-ava" style="background:${TEAM[id].color};color:${inkOn(TEAM[id].color)}" title="${escHtml_(TEAM[id].name)} · ${n} tarea${n===1?'':'s'}">${initials(TEAM[id].name)}<i>${n}</i></span>`).join("");
 
-    const subs = SUBTHEMES.filter(s=>s.processId===pr.id && (!viewerOnly || (bySub.get(s.id)||[]).length));
+    const subs = sortSubsByStart(SUBTHEMES.filter(s=>s.processId===pr.id && (!viewerOnly || (bySub.get(s.id)||[]).length)), s=> bySub.get(s.id)||[]);
     const subsHtml = subs.map(s=>{
       const all = bySub.get(s.id) || [];
       const pend = all.filter(pending).sort((x,y)=> String(x.end).localeCompare(String(y.end)));
@@ -3609,14 +3617,9 @@ function renderTimeline(){
       avgProgress = Math.round(tasksInWindow.reduce((s,a)=>s+a.progress,0)/tasksInWindow.length);
       respUniq = uniq(tasksInWindow.flatMap(a=>a.responsible));
     }
-    return { sub, minD, maxD, avgProgress, respUniq, count:tasksInWindow.length, totalTasks:tasks.length, totalOutsideWindow: tasks.length>tasksInWindow.length };
+    return { sub, minD, maxD, avgProgress, respUniq, count:tasksInWindow.length, totalTasks:tasks.length, totalOutsideWindow: tasks.length>tasksInWindow.length, firstStart: tasks.length ? tasks.reduce((m,a)=> String(a.start)<m?String(a.start):m, String(tasks[0].start)) : "" };
   }).filter(s=>s.totalTasks>0) // respeta los filtros activos (responsable, estado, etc.)
-    .sort((a,b)=>{
-      if(a.minD && b.minD) return a.minD-b.minD; // inicio más temprano primero
-      if(a.minD && !b.minD) return -1;
-      if(!a.minD && b.minD) return 1;
-      return a.sub.name.localeCompare(b.sub.name);
-    });
+    .sort((a,b)=> a.firstStart.localeCompare(b.firstStart) || a.sub.name.localeCompare(b.sub.name)); // inicio real más temprano primero (aunque quede fuera de la ventana visible)
 
   const monthHeadHtml = months.map(m=>`<div style="width:${4*WEEK_W}px;flex-shrink:0;" class="dm-monthhead">${MONTHS_FULL[m.month]} ${m.year}</div>`).join("");
   const weekHeadHtml = weeks.map((w,i)=>`<div style="width:${WEEK_W}px;flex-shrink:0;" class="dm-dayhead ${i===curWeekIdx?'today':''}">${w.label}</div>`).join("");
@@ -3835,9 +3838,9 @@ function renderProcessDetail(){
   const avg = total ? Math.round(allActs.reduce((s,a)=>s+a.progress,0)/total) : 0;
   const procUnreadCount = state.viewingAs ? allActs.reduce((s,a)=>s+countUnreadNotes(a.notes, state.viewingAs),0) : 0;
 
-  const subs = SUBTHEMES.filter(s=>s.processId===p.id);
+  const subs = sortSubsByStart(SUBTHEMES.filter(s=>s.processId===p.id));
   const subsHtml = subs.map(sub=>{
-    const acts = sub.activities;
+    const acts = sortedByStart(sub.activities);
     const aOpen = !!state.hierOpenAct[sub.id];
     const subAvg = acts.length ? Math.round(acts.reduce((s,a)=>s+a.progress,0)/acts.length) : 0;
     const formOpen = !!state.addFormOpen[sub.id];
