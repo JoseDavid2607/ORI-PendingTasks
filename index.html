@@ -2219,8 +2219,9 @@ const API_TOKEN = "ORI-d6d1f5b6a698a6a4013dbeef69915b52";
 const SYNC_POLL_MS = 20000; // frecuencia de refresco automático (20s)
 const SYNC_POST_TIMEOUT_MS = 45000; // guardar puede tardar más que leer (Google a veces demora en "despertar" el script)
 const SYNC_TIMEOUT_MS = 20000; // tiempo máximo de espera por petición antes de reintentar
-const SYNC_RETRIES = 3; // intentos por petición (con esperas de 1s, 2s, 4s)
-const SYNC_FAILS_BEFORE_ERROR = 2; // fallos seguidos antes de avisar "sin conexión"
+const SYNC_POST_TRIES = 6; // intentos al guardar (esperas de 1s, 2s, 4s, 8s, 16s): si la hoja está ocupada con otro guardado, se espera su turno
+const SYNC_RETRIES = 4; // intentos por petición (con esperas de 1s, 2s, 4s)
+const SYNC_FAILS_BEFORE_ERROR = 3; // fallos seguidos antes de avisar "sin conexión"
 let syncTimer = null;
 
 const state = {
@@ -2641,12 +2642,21 @@ async function syncFromSheet(silent){
   }
 }
 
+// Los guardados salen de uno en uno: la hoja solo atiende un guardado a la vez ("otro guardado en curso"),
+// así que dos cambios seguidos de esta misma pantalla nunca chocan entre sí.
+let postChain = Promise.resolve();
 async function postToSheet(payload){
   if(!SHEETS_API_URL) return { ok:true, local:true };
+  const quiet = payload && payload.action === "markRead";
+  if(!quiet){ state.pendingWrites = (state.pendingWrites||0) + 1; state.lastWriteAt = Date.now(); }   // cuenta desde que se pide, aunque espere turno
+  const run = postChain.then(()=> postToSheetNow(payload, quiet));
+  postChain = run.catch(()=>{});
+  try{ return await run; }
+  finally{ if(!quiet){ state.pendingWrites = Math.max(0, (state.pendingWrites||1) - 1); state.lastWriteAt = Date.now(); } }
+}
+async function postToSheetNow(payload, quiet){
   // Se envía quién hace el cambio para que quede en la hoja "Historial"
   payload = Object.assign({ by: state.viewingAs || "" }, payload);
-  const quiet = payload.action === "markRead";   // marcar leído no cambia datos: va en segundo plano y sin avisos
-  if(!quiet){ state.pendingWrites = (state.pendingWrites||0) + 1; state.lastWriteAt = Date.now(); }
   try{
     const data = await withRetries(async ()=>{
       const res = await fetchWithTimeout(sheetUrl(), {
@@ -2659,11 +2669,11 @@ async function postToSheet(payload){
       const d = await res.json();
       if(!d.ok){
         const e = new Error(String(d.error||"Error al guardar").replace(/^Error:\s*/,""));
-        e.definitive = !d.retry;   // "hoja ocupada": se reintenta solo
+        e.definitive = !d.retry && !/en curso|ocupad|otro guardado|intenta de nuevo|lock/i.test(e.message);   // "hoja ocupada": se reintenta solo
         throw e;
       }
       return d;
-    }, 2);   // los guardados son idempotentes: un reintento es seguro y no duplica nada
+    }, SYNC_POST_TRIES);   // los guardados son idempotentes: un reintento es seguro y no duplica nada
     state.syncFails = 0;
     state.lastSyncAt = new Date();
     setSyncStatus("ok");
@@ -2686,8 +2696,6 @@ async function postToSheet(payload){
       }
     }
     return { ok:false, error:String(err) };
-  } finally {
-    if(!quiet){ state.pendingWrites = Math.max(0, (state.pendingWrites||1) - 1); state.lastWriteAt = Date.now(); }
   }
 }
 
@@ -3418,7 +3426,7 @@ function renderDashboard(){
       <div class="panel-title">Carga por responsable</div>
       ${buildLoadRowHtml(respCounts, teamScope() ? null : state.viewingAs)}
     </div>
-    <div class="section-title-page" style="margin-top:20px;"><h2 style="font-size:15px;">Grandes temas</h2></div>
+    <div class="section-title-page" style="margin-top:20px;"><h2 style="font-size:15px;">Grandes temas</h2><span>Quienes apoyan van junto al título (primero quien tiene más tareas) · pasa el mouse por un subtema para ver sus pendientes · clic para abrirlo</span></div>
     ${buildPostItBoardHtml(flattenActivities().filter(a=> !viewerOnly || a.responsible.includes(viewerOnly)), viewerOnly)}
   `;
 
