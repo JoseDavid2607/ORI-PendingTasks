@@ -2275,6 +2275,10 @@ function processOf(id){ return PROCESSES.find(p=>p.id===id); }
 function subthemeOf(id){ return SUBTHEMES.find(s=>s.id===id); }
 // Vista de todo el equipo: entrar como "Todo el equipo", o Carolina con el interruptor "Todo el equipo" activo
 function teamScope(){ return !state.viewingAs || (state.viewingAs==="cd" && state.filters.responsible==="all"); }
+// Cronogramas: las tareas siempre van por fecha de inicio, de la más cercana a la más lejana (empate: la que termina antes)
+function sortedByStart(acts){
+  return acts.slice().sort((a,b)=> String(a.start).localeCompare(String(b.start)) || String(a.end).localeCompare(String(b.end)));
+}
 function subOfTask(taskId){ return SUBTHEMES.find(sb=> sb.activities.some(a=> a.id===taskId)); }
 const escHtml_ = v => String(v==null?"":v).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 // Una tarea sin terminar cuya fecha fin ya pasó está vencida, aunque en la hoja nadie haya cambiado su estado.
@@ -3655,9 +3659,10 @@ function renderTimeline(){
   const rows = subs.map(({sub,minD,maxD,avgProgress,respUniq,count,totalTasks,totalOutsideWindow})=>{
     const expanded = !!state.tlExpandedSubs[sub.id];
     const subUnread = subthemeUnreadCount(sub);
-    const expandedRowsHtml = expanded ? sub.activities.map((a,i)=>{
+    const expandedActs = sortedByStart(sub.activities);
+    const expandedRowsHtml = expanded ? expandedActs.map((a,i)=>{
       const html = taskRowHtml(a, sub.id);
-      return (i===sub.activities.length-1 && !state.dayAddFormOpen)
+      return (i===expandedActs.length-1 && !state.dayAddFormOpen)
         ? html.replace('class="tl-child-row"', 'class="tl-child-row tl-child-last"')
         : html;
     }).join("") : "";
@@ -4028,7 +4033,7 @@ function openDayView(subthemeId){
   if(state.dayViewSubtheme !== subthemeId) state.dayAddFormOpen = false; // limpiar al cambiar de subtema
   state.dayViewSubtheme = subthemeId;
   const proc = processOf(sub.processId);
-  const acts = sub.activities;
+  const acts = sortedByStart(sub.activities);
   const subNotes = sub.notes || [];
   const headHtml = `
     <div class="dm-head">
