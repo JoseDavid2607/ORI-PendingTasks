@@ -3418,7 +3418,7 @@ function renderDashboard(){
       <div class="panel-title">Carga por responsable</div>
       ${buildLoadRowHtml(respCounts, teamScope() ? null : state.viewingAs)}
     </div>
-    <div class="section-title-page" style="margin-top:20px;"><h2 style="font-size:15px;">Grandes temas</h2><span>Quienes apoyan van junto al título (primero quien tiene más tareas) · pasa el mouse por un subtema para ver sus pendientes · clic para abrirlo</span></div>
+    <div class="section-title-page" style="margin-top:20px;"><h2 style="font-size:15px;">Grandes temas</h2></div>
     ${buildPostItBoardHtml(flattenActivities().filter(a=> !viewerOnly || a.responsible.includes(viewerOnly)), viewerOnly)}
   `;
 
